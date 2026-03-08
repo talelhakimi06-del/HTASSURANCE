@@ -35,7 +35,7 @@ function makeGreetingMessage(mode: AppMode): Message {
     content: isComparison ? GREETING_COMPARISON : GREETING_ASSISTANT,
     timestamp: new Date(),
     quickReplies: isComparison
-      ? ["Assurance auto", "Assurance habitation", "RC Pro / Freelance", "Décennale BTP", "Assurance VTC", "Assurance emprunteur", "Autre"]
+      ? ["Assurance auto", "Trottinette électrique", "Assurance habitation", "RC Pro / Freelance", "Décennale BTP", "Assurance VTC", "Assurance emprunteur", "Autre"]
       : ["Mes garanties", "Déclarer un sinistre", "Contacter mon courtier"],
     phase: isComparison ? "insurance_type" : "assistant_idle",
   };
