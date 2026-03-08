@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "app/comparateur/api/chat/route.ts": {
+      "maxDuration": 30
+    },
+    "app/comparateur/api/lead/route.ts": {
+      "maxDuration": 15
+    },
+    "app/comparateur/api/siret/route.ts": {
+      "maxDuration": 15
+    }
+  }
+}

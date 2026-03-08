@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Custom scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ── Typing dots animation ────────────────────────────────────────────────── */
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
+
+/* ── Smooth height transition ─────────────────────────────────────────────── */
+textarea {
+  transition: height 0.1s ease;
+}
+
+/* ── Remove default focus outline (we use ring) ───────────────────────────── */
+*:focus-visible {
+  outline: none;
+}
+
+/* ── Full viewport height without iOS bounce ─────────────────────────────── */
+html, body {
+  height: 100%;
+  overscroll-behavior: none;
+}
