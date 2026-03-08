@@ -199,6 +199,31 @@ function LeadReadyCard({ data, onContact }: {
   );
 }
 
+/* ── Génère le résumé de conversation pour l'email ──────────────────────── */
+function buildConversationSummary(messages: Message[], leadReady: LeadReady | null): string {
+  const lines: string[] = [];
+
+  if (leadReady) {
+    lines.push(`📋 ${leadReady.resume}`);
+    lines.push(`💶 Fourchette estimée : ${leadReady.fourchette}`);
+    lines.push(`🎯 Profil : ${leadReady.profil}`);
+    lines.push("");
+  }
+
+  lines.push("── Conversation complète ──");
+  messages.forEach((m) => {
+    if (m.role === "user") {
+      lines.push(`👤 Client : ${m.content}`);
+    } else if (m.role === "assistant" && m.content && !m.streaming) {
+      /* Tronquer les messages très longs de l'IA */
+      const text = m.content.length > 300 ? m.content.slice(0, 300) + "…" : m.content;
+      lines.push(`🤖 ELIA : ${text}`);
+    }
+  });
+
+  return lines.join("\n");
+}
+
 /* ── Main ChatContainer ──────────────────────────────────────────────────── */
 export default function ChatContainer() {
   const [mode, setMode] = useState<AppMode>("comparison");
@@ -634,6 +659,7 @@ export default function ChatContainer() {
           profile={collectedProfile}
           leadSummary={leadReadyData?.resume}
           fourchette={leadReadyData?.fourchette}
+          conversationSummary={buildConversationSummary(messages, leadReadyData)}
         />
       )}
     </div>

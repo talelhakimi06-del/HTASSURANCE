@@ -10,9 +10,10 @@ type Props = {
   profile?: string;
   leadSummary?: string;
   fourchette?: string;
+  conversationSummary?: string;
 };
 
-export default function LeadFormModal({ onClose, onSubmit, insuranceType, profile, leadSummary, fourchette }: Props) {
+export default function LeadFormModal({ onClose, onSubmit, insuranceType, profile, leadSummary, fourchette, conversationSummary }: Props) {
   const [form, setForm] = useState({ prenom: "", nom: "", telephone: "", email: "", entreprise: "", siret: "" });
   const [loading, setLoading] = useState(false);
   const [siretLookup, setSiretLookup] = useState<string | null>(null);
@@ -59,6 +60,7 @@ export default function LeadFormModal({ onClose, onSubmit, insuranceType, profil
       siret: form.siret || undefined,
       insuranceType,
       profile,
+      conversationSummary,
       source: "comparateur-ht",
       createdAt: new Date().toISOString(),
     };

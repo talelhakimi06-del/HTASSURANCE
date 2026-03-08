@@ -17,6 +17,7 @@
     "openai": "^6.27.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "resend": "^6.9.3",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
