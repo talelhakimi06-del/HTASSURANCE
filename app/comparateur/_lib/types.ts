@@ -23,6 +23,7 @@ export type Message = {
   estimation?: Estimation | null;
   showLeadForm?: boolean;
   phase?: ConversationPhase;
+  streaming?: boolean;
 };
 
 // ─── AI structured response ───────────────────────────────────────────────────

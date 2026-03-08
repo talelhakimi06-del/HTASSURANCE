@@ -62,6 +62,24 @@ export function parseAiResponse(raw: string): { content: string; actions: AiActi
   }
 }
 
+// ─── Extrait le message en cours de streaming depuis le JSON partiel ──────────
+// Le JSON arrive dans l'ordre : {"message":"texte...","quickReplies":...}
+// On peut donc afficher le texte progressivement dès qu'on voit "message":"
+export function extractStreamingMessage(partial: string): string {
+  const unescape = (s: string) =>
+    s.replace(/\\n/g, "\n").replace(/\\r/g, "").replace(/\\"/g, '"').replace(/\\\\/g, "\\");
+
+  // Message complet trouvé (on a la guillemet fermante)
+  const full = partial.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)"/);
+  if (full) return unescape(full[1]);
+
+  // Message partiel : pas encore de guillemet fermante
+  const partial_ = partial.match(/"message"\s*:\s*"((?:[^"\\]|\\.)*)/);
+  if (partial_) return unescape(partial_[1]);
+
+  return "";
+}
+
 // ─── Format price ──────────────────────────────────────────────────────────────
 export function formatPrice(price: number): string {
   return new Intl.NumberFormat("fr-FR", {

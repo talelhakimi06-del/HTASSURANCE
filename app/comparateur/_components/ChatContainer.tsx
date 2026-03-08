@@ -2,7 +2,8 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { Message, AppMode, Lead, ConversationPhase, LeadReady, SiretData } from "../_lib/types";
-import { genId } from "../_lib/utils";
+import { genId, extractStreamingMessage } from "../_lib/utils";
+import type { AiActions } from "../_lib/types";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
@@ -251,6 +252,142 @@ export default function ChatContainer() {
     return false;
   }, []);
 
+  /* ── Helper streaming partagé — utilisé par tous les call sites ──────────── *
+   * Crée un message "streaming" dans la liste, le met à jour progressivement   *
+   * au fil des chunks SSE, puis le finalise avec les actions parsées.          */
+  const dispatchStream = useCallback(async (
+    history: { role: "user" | "assistant"; content: string }[],
+    currentMode: AppMode,
+    currentPhaseVal: ConversationPhase,
+  ) => {
+    const tempId = genId();
+
+    /* Placeholder visible immédiatement — TypingIndicator masqué via streaming:true */
+    setMessages((prev) => [
+      ...prev,
+      { id: tempId, role: "assistant", content: "", timestamp: new Date(), streaming: true },
+    ]);
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/comparateur/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history, mode: currentMode }),
+      });
+
+      if (!res.ok || !res.body) {
+        throw new Error("Erreur réseau");
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let rawAccumulated = "";
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          if (!line.startsWith("data: ")) continue;
+          try {
+            const payload = JSON.parse(line.slice(6));
+
+            if (payload.error) {
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === tempId
+                    ? {
+                        ...m,
+                        content: `Désolé, une erreur est survenue.\n\n${payload.error}\n\nContacte-nous au ${PHONE}.`,
+                        streaming: false,
+                        quickReplies: ["📞 Appeler", "💬 WhatsApp"],
+                      }
+                    : m
+                )
+              );
+              return;
+            }
+
+            if (payload.done) {
+              const actions: AiActions = payload.actions;
+              setMessages((prev) =>
+                prev.map((m) =>
+                  m.id === tempId
+                    ? {
+                        ...m,
+                        content: payload.content,
+                        streaming: false,
+                        quickReplies: actions.quickReplies ?? [],
+                        estimation: actions.estimation ?? null,
+                        showLeadForm: actions.showLeadForm ?? false,
+                        phase: actions.phase,
+                      }
+                    : m
+                )
+              );
+              setCurrentPhase(actions.phase ?? currentPhaseVal);
+              if (actions.leadReady) setLeadReadyData(actions.leadReady);
+              if (actions.showLeadForm) setTimeout(() => setShowLeadForm(true), 600);
+              return;
+            }
+
+            /* Fragment de texte : afficher progressivement le champ "message" */
+            if (payload.t) {
+              rawAccumulated += payload.t;
+              const displayText = extractStreamingMessage(rawAccumulated);
+              if (displayText) {
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === tempId ? { ...m, content: displayText } : m
+                  )
+                );
+              }
+            }
+          } catch {
+            /* chunk partiel ou malformé — ignorer */
+          }
+        }
+      }
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
+      setMessages((prev) =>
+        prev.map((m) =>
+          m.id === tempId
+            ? {
+                ...m,
+                content: `Désolé, une erreur est survenue.\n\n${errMsg}\n\nContacte-nous au ${PHONE}.`,
+                streaming: false,
+                quickReplies: ["📞 Appeler", "💬 WhatsApp"],
+              }
+            : m
+        )
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  /* ── Construit l'historique avec injection de contexte ───────────────────── */
+  function buildHistory(
+    base: Message[],
+    userMsg: Message,
+    ctx: string
+  ): { role: "user" | "assistant"; content: string }[] {
+    const raw = [...base, userMsg].map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+    if (!ctx) return raw;
+    const idx = raw.findIndex((m) => m.role === "user");
+    if (idx < 0) return raw;
+    return raw.map((m, i) =>
+      i === idx ? { ...m, content: `${ctx}\n\n${m.content}` } : m
+    );
+  }
+
   const sendMessage = useCallback(async (text: string, overrideContext?: string) => {
     if (isLoading) return;
 
@@ -263,15 +400,12 @@ export default function ChatContainer() {
       const hasPlate = await tryEnrichPlate(text);
       if (hasPlate) return;
 
-      /* Vérifier si le texte contient un SIRET → AutoFillCard d'abord */
       const hasSiret = await tryEnrichSiret(text);
-      if (hasSiret) return; /* attend confirmation utilisateur */
+      if (hasSiret) return;
     }
 
-    /* Ajouter le message utilisateur */
     const userMsg: Message = { id: genId(), role: "user", content: text, timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
 
     if (text.toLowerCase().includes("professionnel") || text.toLowerCase().includes("entreprise")) {
       setCollectedProfile("professionnel");
@@ -279,189 +413,51 @@ export default function ChatContainer() {
       setCollectedProfile("particulier");
     }
     if (!collectedInsuranceType) {
-      const types = ["auto", "habitation", "rc pro", "décennale", "vtc", "emprunteur"];
+      const types = ["auto", "habitation", "rc pro", "décennale", "vtc", "emprunteur", "trottinette"];
       const found = types.find((t) => text.toLowerCase().includes(t));
       if (found) setCollectedInsuranceType(found);
     }
 
-    /* Construire l'historique et injecter le contexte enrichi dans le premier message user.
-     * On utilise overrideContext en priorité (fix timing React) puis siretContext.
-     * Le contexte est préfixé au premier message user pour rester dans la structure
-     * user/assistant alternée attendue par l'API Anthropic. */
-    const effectiveContext = overrideContext ?? siretContext;
-    const historyBase = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
-    let history = historyBase;
-    if (effectiveContext) {
-      const firstUserIdx = historyBase.findIndex((m) => m.role === "user");
-      if (firstUserIdx >= 0) {
-        history = historyBase.map((m, i) =>
-          i === firstUserIdx
-            ? { ...m, content: `${effectiveContext}\n\n${m.content}` }
-            : m
-        );
-      }
-    }
+    const history = buildHistory(messages, userMsg, overrideContext ?? siretContext);
+    await dispatchStream(history, mode, currentPhase);
+  }, [messages, mode, isLoading, currentPhase, collectedInsuranceType, siretContext, tryEnrichSiret, tryEnrichPlate, dispatchStream]);
 
-    try {
-      const res = await fetch("/comparateur/api/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history, mode }),
-      });
-
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error ?? "Erreur API");
-      }
-
-      const data = await res.json();
-      const { content, actions } = data;
-
-      setCurrentPhase(actions.phase ?? currentPhase);
-
-      if (actions.leadReady) {
-        setLeadReadyData(actions.leadReady);
-      }
-
-      const assistantMsg: Message = {
-        id: genId(),
-        role: "assistant",
-        content,
-        timestamp: new Date(),
-        quickReplies: actions.quickReplies ?? [],
-        estimation: actions.estimation ?? null,
-        showLeadForm: actions.showLeadForm ?? false,
-        phase: actions.phase,
-      };
-
-      setMessages((prev) => [...prev, assistantMsg]);
-      if (actions.showLeadForm) setTimeout(() => setShowLeadForm(true), 600);
-    } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: genId(),
-          role: "assistant",
-          content: `Désolé, une erreur est survenue.\n\n${errMsg}\n\nContacte-nous au ${PHONE}.`,
-          timestamp: new Date(),
-          quickReplies: ["📞 Appeler", "💬 WhatsApp"],
-        },
-      ]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [messages, mode, isLoading, currentPhase, collectedInsuranceType, siretContext, tryEnrichSiret]);
-
-  /* Confirmer AutoFillCard → injecter données SIRET dans le contexte */
+  /* Confirmer AutoFillCard SIRET */
   function handleAutoFillConfirm() {
     if (!autoFill) return;
     const { data, pendingText } = autoFill;
     const anciennete = data.dateCreation
       ? new Date().getFullYear() - new Date(data.dateCreation).getFullYear()
       : null;
-    const context = `[Données auto-récupérées via SIRET ${data.siret}]\nEntreprise : ${data.nom}\nActivité : ${data.activite} (NAF ${data.codeNaf})\nAncienneté : ${anciennete ?? "N/A"} an(s)\nAdresse : ${data.adresse}\nStatut : actif`;
-    setSiretContext(context);
+    const ctx = `[Données auto-récupérées via SIRET ${data.siret}]\nEntreprise : ${data.nom}\nActivité : ${data.activite} (NAF ${data.codeNaf})\nAncienneté : ${anciennete ?? "N/A"} an(s)\nAdresse : ${data.adresse}\nStatut : actif`;
+    const userText = pendingText + ` [SIRET confirmé: ${data.siret}]`;
+    const userMsg: Message = { id: genId(), role: "user", content: userText, timestamp: new Date() };
+    setSiretContext(ctx);
     setAutoFill(null);
-    /* Passer le contexte directement (même fix timing que pour le véhicule) */
-    sendMessage(pendingText + ` [SIRET confirmé: ${data.siret}]`, context);
+    setMessages((prev) => [...prev, userMsg]);
+    dispatchStream(buildHistory(messages, userMsg, ctx), mode, currentPhase);
   }
 
   function handleAutoFillDismiss() {
     if (!autoFill) return;
-    const text = autoFill.pendingText;
+    const { pendingText } = autoFill;
+    const userMsg: Message = { id: genId(), role: "user", content: pendingText, timestamp: new Date() };
     setAutoFill(null);
-    /* Envoyer sans enrichissement */
-    const userMsg: Message = { id: genId(), role: "user", content: text, timestamp: new Date() };
     setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
-    fetch("/comparateur/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: [...messages, userMsg].map((m) => ({ role: m.role, content: m.content })), mode }),
-    })
-      .then((r) => r.json())
-      .then(({ content, actions }) => {
-        setCurrentPhase(actions.phase ?? currentPhase);
-        if (actions.leadReady) setLeadReadyData(actions.leadReady);
-        setMessages((prev) => [...prev, {
-          id: genId(), role: "assistant", content, timestamp: new Date(),
-          quickReplies: actions.quickReplies ?? [], estimation: actions.estimation ?? null,
-          showLeadForm: actions.showLeadForm ?? false, phase: actions.phase,
-        }]);
-        if (actions.showLeadForm) setTimeout(() => setShowLeadForm(true), 600);
-      })
-      .catch(() => {
-        setMessages((prev) => [...prev, {
-          id: genId(), role: "assistant",
-          content: `Une erreur est survenue. Contacte-nous au ${PHONE}.`,
-          timestamp: new Date(), quickReplies: ["📞 Appeler", "💬 WhatsApp"],
-        }]);
-      })
-      .finally(() => setIsLoading(false));
+    dispatchStream(buildHistory(messages, userMsg, siretContext), mode, currentPhase);
   }
 
-  /* Confirmer VehicleAutoFillCard → fetch autonome (pas de useCallback stale) */
+  /* Confirmer VehicleAutoFillCard */
   function handleVehicleConfirm() {
     if (!vehicleFill) return;
     const { data, pendingText } = vehicleFill;
-
     const ctx = data.contextIA;
     const userText = pendingText + ` [Plaque confirmée: ${data.plate} — ${data.marque} ${data.modele} ${data.annee}]`;
     const userMsg: Message = { id: genId(), role: "user", content: userText, timestamp: new Date() };
-
     setSiretContext(ctx);
     setVehicleFill(null);
     setMessages((prev) => [...prev, userMsg]);
-    setIsLoading(true);
-
-    /* Injecter le contexte dans le premier message user de l'historique */
-    const historyBase = [...messages, userMsg].map((m) => ({ role: m.role, content: m.content }));
-    const firstUserIdx = historyBase.findIndex((m) => m.role === "user");
-    const history =
-      firstUserIdx >= 0
-        ? historyBase.map((m, i) =>
-            i === firstUserIdx ? { ...m, content: `${ctx}\n\n${m.content}` } : m
-          )
-        : historyBase;
-
-    fetch("/comparateur/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: history, mode }),
-    })
-      .then((r) => r.json())
-      .then(({ content, actions }) => {
-        setCurrentPhase(actions.phase ?? currentPhase);
-        if (actions.leadReady) setLeadReadyData(actions.leadReady);
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: genId(),
-            role: "assistant",
-            content,
-            timestamp: new Date(),
-            quickReplies: actions.quickReplies ?? [],
-            estimation: actions.estimation ?? null,
-            showLeadForm: actions.showLeadForm ?? false,
-            phase: actions.phase,
-          },
-        ]);
-        if (actions.showLeadForm) setTimeout(() => setShowLeadForm(true), 600);
-      })
-      .catch(() => {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: genId(),
-            role: "assistant",
-            content: `Une erreur est survenue. Contacte-nous au ${PHONE}.`,
-            timestamp: new Date(),
-            quickReplies: ["📞 Appeler", "💬 WhatsApp"],
-          },
-        ]);
-      })
-      .finally(() => setIsLoading(false));
+    dispatchStream(buildHistory(messages, userMsg, ctx), mode, currentPhase);
   }
 
   /* Corriger → renvoyer le texte original sans enrichissement */
@@ -575,7 +571,7 @@ export default function ChatContainer() {
           />
         )}
 
-        {isLoading && <TypingIndicator />}
+        {isLoading && !messages.some((m) => m.streaming) && <TypingIndicator />}
 
         {/* LeadReadyCard */}
         {leadReadyData && !showLeadForm && !leadSubmitted && (

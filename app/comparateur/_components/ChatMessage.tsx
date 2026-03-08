@@ -39,7 +39,13 @@ export default function ChatMessage({ message, onQuickReply, isLast, isLoading }
           <div className="rounded-2xl rounded-tl-sm px-4 py-3"
             style={{ background: "#0D2456", border: "1px solid #1A3570" }}>
             <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "#e8edf5" }}>
-              {message.content}
+              {message.content || (message.streaming ? "" : "…")}
+              {message.streaming && (
+                <span
+                  className="inline-block w-0.5 h-4 ml-0.5 align-middle animate-pulse"
+                  style={{ background: "#C9A84C" }}
+                />
+              )}
             </p>
           </div>
           <p className="text-[10px] mt-1 ml-1" style={{ color: "#8090A8" }}>
