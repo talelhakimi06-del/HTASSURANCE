@@ -81,6 +81,20 @@ function PillButton({ opt, onSelect, disabled }: { opt: string; onSelect: (o: st
         el.style.color = "#C9A84C";
         el.style.borderColor = "rgba(201,168,76,0.4)";
       }}
+      /* Feedback tactile mobile : léger retrait au tap */
+      onTouchStart={(e) => {
+        if (disabled) return;
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.transform = "scale(0.95)";
+        el.style.background = "#C9A84C";
+        el.style.color = "#0D1B3E";
+      }}
+      onTouchEnd={(e) => {
+        const el = e.currentTarget as HTMLButtonElement;
+        el.style.transform = "scale(1)";
+        el.style.background = "rgba(201,168,76,0.15)";
+        el.style.color = "#C9A84C";
+      }}
     >
       {icon && <span style={{ fontSize: 15, lineHeight: 1 }}>{icon}</span>}
       <span>{label}</span>

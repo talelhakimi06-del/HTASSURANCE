@@ -48,7 +48,9 @@ export default function ChatInput({ onSend, disabled, placeholder }: Props) {
     const el = textareaRef.current;
     if (!el) return;
     el.style.height = "auto";
-    el.style.height = Math.min(el.scrollHeight, 140) + "px";
+    /* Max 80px sur mobile, 140px sur desktop */
+    const maxH = window.innerWidth < 640 ? 80 : 140;
+    el.style.height = Math.min(el.scrollHeight, maxH) + "px";
   }
 
   function handleSend() {
@@ -139,7 +141,9 @@ export default function ChatInput({ onSend, disabled, placeholder }: Props) {
         disabled={disabled}
         placeholder={isListening ? "🎙 J'écoute…" : (placeholder ?? "Écris ton message…")}
         rows={1}
-        className="flex-1 resize-none bg-transparent text-sm outline-none disabled:opacity-50 max-h-[140px] leading-relaxed"
+        /* enterKeyHint="send" affiche "Envoyer" sur le clavier virtuel iOS/Android */
+        enterKeyHint="send"
+        className="flex-1 resize-none bg-transparent text-sm outline-none disabled:opacity-50 max-h-[80px] sm:max-h-[140px] leading-relaxed"
         style={{ color: "#e8edf5" }}
       />
 
@@ -147,7 +151,8 @@ export default function ChatInput({ onSend, disabled, placeholder }: Props) {
         <button type="button" onClick={toggleVoice} disabled={disabled}
           title={isListening ? "Arrêter la dictée" : "Dicter un message"}
           aria-label={isListening ? "Arrêter la dictée" : "Dicter un message"}
-          className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all duration-150 disabled:opacity-40"
+          /* Masqué sur très petit écran pour libérer de la place */
+          className="hidden xs:flex w-9 h-9 rounded-xl items-center justify-center flex-shrink-0 transition-all duration-150 disabled:opacity-40 sm:flex"
           style={{ background: isListening ? "#D94F3D" : "#1A3570" }}>
           {isListening ? (
             <span className="flex items-center gap-[2px]">
