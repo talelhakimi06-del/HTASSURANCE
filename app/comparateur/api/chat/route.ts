@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       try {
         /* Modèle Haiku : 4× plus rapide que Sonnet pour cette tâche */
         const anthropicStream = client.messages.stream({
-          model: process.env.ANTHROPIC_MODEL ?? "claude-haiku-4-5",
+          model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
           max_tokens: 400,
           system: systemPrompt,
           messages: messages.map((m) => ({
