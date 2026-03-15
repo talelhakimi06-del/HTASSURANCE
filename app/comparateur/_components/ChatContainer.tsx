@@ -295,14 +295,29 @@ export default function ChatContainer() {
     setIsLoading(true);
 
     try {
+      const ctrl = new AbortController();
+      const timeout = setTimeout(() => ctrl.abort(), 35000);
+
       const res = await fetch("/comparateur/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ messages: history, mode: currentMode }),
+        signal: ctrl.signal,
       });
 
-      if (!res.ok || !res.body) {
-        throw new Error("Erreur réseau");
+      clearTimeout(timeout);
+
+      if (!res.ok) {
+        let errText = "";
+        try {
+          errText = await res.text();
+          const parsed = JSON.parse(errText);
+          if (parsed?.error) errText = parsed.error;
+        } catch {}
+        throw new Error(errText || `Erreur serveur (${res.status})`);
+      }
+      if (!res.body) {
+        throw new Error("Réponse vide du serveur");
       }
 
       const reader = res.body.getReader();
@@ -380,7 +395,12 @@ export default function ChatContainer() {
         }
       }
     } catch (err: unknown) {
-      const errMsg = err instanceof Error ? err.message : "Erreur inconnue";
+      let errMsg = err instanceof Error ? err.message : "Erreur inconnue";
+      if (err instanceof Error && err.name === "AbortError") {
+        errMsg = "La requête a expiré. Réessaie dans quelques secondes.";
+      } else if (errMsg.includes("fetch") || errMsg.toLowerCase().includes("network")) {
+        errMsg = "Problème de connexion. Vérifie ta connexion internet et réessaie.";
+      }
       setMessages((prev) =>
         prev.map((m) =>
           m.id === tempId

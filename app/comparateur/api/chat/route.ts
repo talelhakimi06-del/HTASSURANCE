@@ -12,7 +12,7 @@ function sse(payload: unknown) {
 }
 
 export async function POST(req: NextRequest) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
 
   if (!apiKey) {
     return new Response(
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       try {
         /* Modèle Haiku : 4× plus rapide que Sonnet pour cette tâche */
         const anthropicStream = client.messages.stream({
-          model: process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514",
+          model: (process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-20250514").trim(),
           max_tokens: 400,
           system: systemPrompt,
           messages: messages.map((m) => ({
