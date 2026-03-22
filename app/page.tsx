@@ -265,6 +265,7 @@ export default function Home() {
             <a href="#services" className="hover:text-slate-900 transition-colors">Services</a>
             <a href="#pourquoi" className="hover:text-slate-900 transition-colors">Pourquoi nous</a>
             <a href="#zone" className="hover:text-slate-900 transition-colors">Zone d&apos;intervention</a>
+            <a href="/sinistres" className="hover:text-slate-900 transition-colors">Sinistres refusés</a>
             <a href="/blog" className="hover:text-slate-900 transition-colors">Blog</a>
             <a
               href={PHONE_HREF}

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import type { Message, AppMode, Lead, ConversationPhase } from "@/lib/types";
-import { genId } from "@/lib/utils";
+import type { Message, AppMode, Lead, ConversationPhase, InsurerEstimate } from "@/lib/types";
+import { genId, parseAiResponse } from "@/lib/utils";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
@@ -12,7 +12,7 @@ import ModeToggle from "./ModeToggle";
 const PHONE = "0986113257";
 const WHATSAPP = "https://wa.me/33986113257?text=Bonjour%2C%20je%20souhaite%20un%20devis%20assurance";
 
-const GREETING_COMPARISON = `Bonjour 👋 Je suis votre assistant HT Assurance.
+const GREETING_COMPARISON = `Bonjour 👋 Je suis ELIA, l'assistante HT Assurance.
 
 Je vais vous poser quelques questions pour vous proposer les meilleures offres d'assurance adaptées à votre profil.
 
@@ -47,9 +47,18 @@ export default function ChatContainer() {
   const [currentPhase, setCurrentPhase] = useState<ConversationPhase>("insurance_type");
   const [collectedProfile, setCollectedProfile] = useState<string | undefined>();
   const [collectedInsuranceType, setCollectedInsuranceType] = useState<string | undefined>();
+  const [apiHealthy, setApiHealthy] = useState<boolean | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const chatAreaRef = useRef<HTMLDivElement>(null);
+
+  // Vérification santé API au chargement (anticipe les erreurs de config)
+  useEffect(() => {
+    fetch("/api/health")
+      .then((r) => r.json())
+      .then((data) => setApiHealthy(data.ok))
+      .catch(() => setApiHealthy(false));
+  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -58,6 +67,23 @@ export default function ChatContainer() {
   const sendMessage = useCallback(
     async (text: string) => {
       if (isLoading) return;
+
+      const textLower = text.toLowerCase();
+
+      // Contact intents : ouvrir directement sans appeler l'API
+      if (textLower.includes("nous appeler") || textLower.includes("appeler le")) {
+        window.location.href = `tel:${PHONE}`;
+        return;
+      }
+      if (textLower.includes("whatsapp")) {
+        window.open(WHATSAPP, "_blank");
+        return;
+      }
+      // Lead form intents : ouvrir le formulaire directement
+      if (textLower.includes("devis") || textLower.includes("rappelé") || textLower.includes("rappeler") || textLower.includes("être contacté") || textLower.includes("formulaire")) {
+        setShowLeadForm(true);
+        return;
+      }
 
       // Add user message
       const userMsg: Message = {
@@ -68,11 +94,6 @@ export default function ChatContainer() {
       };
       setMessages((prev) => [...prev, userMsg]);
       setIsLoading(true);
-
-      // Track WhatsApp intent
-      if (text.toLowerCase().includes("whatsapp")) {
-        window.open(WHATSAPP, "_blank");
-      }
 
       // Build history for API
       const history = [...messages, userMsg].map((m) => ({
@@ -85,53 +106,133 @@ export default function ChatContainer() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ messages: history, mode }),
+          signal: AbortSignal.timeout(35000),
         });
 
         if (!res.ok) {
-          const err = await res.json();
-          throw new Error(err.error ?? "Erreur API");
+          let errMsg = "Erreur API";
+          try {
+            const err = await res.json();
+            errMsg = err.error ?? errMsg;
+          } catch {
+            // réponse non-JSON (page d'erreur Vercel, etc.)
+          }
+          throw new Error(errMsg);
         }
 
-        const data = await res.json();
-        const { content, actions } = data;
+        // ── Lire le stream SSE ──────────────────────────────────
+        const reader = res.body?.getReader();
+        if (!reader) throw new Error("Stream non disponible");
+
+        const decoder = new TextDecoder();
+        let fullText = "";
+        const streamMsgId = genId();
+
+        // Ajouter le message assistant vide pour le remplir progressivement
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: streamMsgId,
+            role: "assistant",
+            content: "",
+            timestamp: new Date(),
+            quickReplies: [],
+          },
+        ]);
+
+        let done = false;
+        while (!done) {
+          const { value, done: readerDone } = await reader.read();
+          if (readerDone) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split("\n");
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const data = line.slice(6);
+            if (data === "[DONE]") {
+              done = true;
+              break;
+            }
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.error) throw new Error(parsed.error);
+              if (parsed.text) {
+                fullText += parsed.text;
+                // Mettre à jour le message en temps réel (affiche le texte brut sans le bloc <actions>)
+                const visibleText = fullText.replace(/<actions>[\s\S]*$/, "").trim();
+                setMessages((prev) =>
+                  prev.map((m) =>
+                    m.id === streamMsgId ? { ...m, content: visibleText } : m
+                  )
+                );
+              }
+            } catch {
+              // ignore malformed chunks
+            }
+          }
+        }
+
+        // ── Parse final : extraire actions + estimation ─────────
+        const { content, actions } = parseAiResponse(fullText);
 
         // Detect profile from messages
-        if (text.toLowerCase().includes("professionnel") || text.toLowerCase().includes("entreprise")) {
+        if (textLower.includes("professionnel") || textLower.includes("entreprise")) {
           setCollectedProfile("professionnel");
-        } else if (text.toLowerCase().includes("particulier")) {
+        } else if (textLower.includes("particulier")) {
           setCollectedProfile("particulier");
         }
 
         // Detect insurance type
         if (!collectedInsuranceType) {
           const types = ["auto", "habitation", "rc pro", "décennale", "vtc", "emprunteur"];
-          const found = types.find((t) => text.toLowerCase().includes(t));
+          const found = types.find((t) => textLower.includes(t));
           if (found) setCollectedInsuranceType(found);
         }
 
-        setCurrentPhase(actions.phase ?? currentPhase);
+        // Valider l'estimation
+        const validEstimation =
+          actions.estimation?.insurers?.length &&
+          actions.estimation.insurers.every(
+            (i: InsurerEstimate) => typeof i?.priceMin === "number" && typeof i?.priceMax === "number"
+          )
+            ? actions.estimation
+            : null;
 
-        const assistantMsg: Message = {
-          id: genId(),
-          role: "assistant",
-          content,
-          timestamp: new Date(),
-          quickReplies: actions.quickReplies ?? [],
-          estimation: actions.estimation ?? null,
-          showLeadForm: actions.showLeadForm ?? false,
-          phase: actions.phase,
-        };
+        const hasEstimation = !!validEstimation;
+        setCurrentPhase(hasEstimation ? "estimation" : (actions.phase ?? currentPhase));
 
-        setMessages((prev) => [...prev, assistantMsg]);
+        // Mettre à jour le message final avec le contenu parsé + quickReplies + estimation
+        setMessages((prev) =>
+          prev.map((m) =>
+            m.id === streamMsgId
+              ? {
+                  ...m,
+                  content,
+                  quickReplies: hasEstimation
+                    ? ["📄 Recevoir un devis détaillé", "📞 Être rappelé", "💬 WhatsApp direct"]
+                    : (actions.quickReplies ?? []),
+                  estimation: validEstimation,
+                  showLeadForm: actions.showLeadForm ?? false,
+                  phase: actions.phase,
+                }
+              : m
+          )
+        );
 
         if (actions.showLeadForm) {
           setTimeout(() => setShowLeadForm(true), 600);
         }
       } catch (err: unknown) {
-        const errorContent =
-          err instanceof Error && err.message.includes("OpenAI")
-            ? "⚠️ La clé OpenAI n'est pas configurée. Ajoutez OPENAI_API_KEY dans votre fichier .env.local"
-            : "Désolé, une erreur est survenue. Veuillez réessayer ou nous contacter directement au " + PHONE;
+        const msg = err instanceof Error ? err.message : "";
+        const isTimeout = msg.includes("TimeoutError") || msg.includes("timeout") || msg.includes("AbortError");
+        const isApiKey = msg.includes("Clé API") || msg.includes("ANTHROPIC");
+        const errorContent = isApiKey
+          ? "⚠️ La clé API n'est pas configurée. Appelez-nous directement au " + PHONE
+          : isTimeout
+          ? "La réponse a pris trop de temps. Réessayez ou contactez-nous au " + PHONE
+          : "Désolé, une erreur est survenue. Réessayez ou contactez-nous au " + PHONE;
 
         setMessages((prev) => [
           ...prev,
@@ -187,10 +288,10 @@ export default function ChatContainer() {
             </svg>
           </div>
           <div>
-            <h1 className="text-white font-bold text-sm leading-tight">HT Assurance</h1>
+            <h1 className="text-white font-bold text-sm leading-tight">ELIA — HT Assurance</h1>
             <div className="flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-slate-400 text-[11px]">Assistant disponible</span>
+              <span className="text-slate-400 text-[11px]">Assistante disponible</span>
             </div>
           </div>
         </div>
@@ -208,6 +309,31 @@ export default function ChatContainer() {
           </a>
         </div>
       </header>
+
+      {/* ── Bannière config manquante (anticipation erreur déploiement) ── */}
+      {apiHealthy === false && (
+        <div className="bg-amber-100 border-b border-amber-300 px-4 py-2.5 flex items-center justify-between gap-3 flex-shrink-0">
+          <p className="text-amber-800 text-xs font-medium">
+            L&apos;assistant est temporairement indisponible. Contactez-nous directement :
+          </p>
+          <div className="flex gap-2 flex-shrink-0">
+            <a
+              href={`tel:${PHONE}`}
+              className="bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
+            >
+              Appeler
+            </a>
+            <a
+              href={WHATSAPP}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg"
+            >
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
 
       {/* ── Mode banner ── */}
       {mode === "assistant" && !leadSubmitted && (
@@ -256,6 +382,31 @@ export default function ChatContainer() {
 
       {/* ── Input bar ── */}
       <div className="flex-shrink-0 px-4 pb-4 pt-2 bg-slate-50 border-t border-slate-100">
+        {/* Bouton devis toujours visible */}
+        {!leadSubmitted && !showLeadForm && (
+          <div className="flex gap-2 mb-2">
+            <button
+              onClick={() => setShowLeadForm(true)}
+              className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold py-2.5 rounded-xl transition-all active:scale-[0.98]"
+            >
+              📄 Demander un devis gratuit
+            </button>
+            <a
+              href={`tel:${PHONE}`}
+              className="bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold py-2.5 px-4 rounded-xl transition-all text-center active:scale-[0.98]"
+            >
+              📞
+            </a>
+            <a
+              href={WHATSAPP}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold py-2.5 px-4 rounded-xl transition-all text-center active:scale-[0.98]"
+            >
+              💬
+            </a>
+          </div>
+        )}
         <ChatInput
           onSend={sendMessage}
           disabled={isLoading}

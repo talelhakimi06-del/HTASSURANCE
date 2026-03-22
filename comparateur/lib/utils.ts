@@ -15,9 +15,13 @@ export function parseAiResponse(raw: string): { content: string; actions: AiActi
   }
 
   const content = raw.replace(/<actions>[\s\S]*?<\/actions>/, "").trim();
+  let jsonStr = match[1].trim();
+
+  // Nettoyer le JSON : retirer blocs markdown, trailing commas
+  jsonStr = jsonStr.replace(/```(?:json)?\s*/g, "").replace(/,\s*([}\]])/g, "$1");
 
   try {
-    const actions: AiActions = JSON.parse(match[1]);
+    const actions: AiActions = JSON.parse(jsonStr);
     return { content, actions: { ...defaultActions, ...actions } };
   } catch {
     return { content, actions: defaultActions };

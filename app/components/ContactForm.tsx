@@ -14,6 +14,8 @@ const insuranceTypes = [
   "Multirisque professionnelle",
   "Assurance habitation",
   "Assurance auto",
+  "Assurance VTC",
+  "Mutuelle santé",
   "Autre",
 ];
 
@@ -23,14 +25,48 @@ export default function ContactForm() {
   );
   const [rgpd, setRgpd] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    /*
-     * TODO: Connecter à un backend, Formspree, EmailJS ou une route API Next.js.
-     * Destinataire du formulaire : ovbcourtage@gmail.com
-     */
-    setSubmitted(true);
+    setLoading(true);
+    setError(null);
+
+    const form = e.currentTarget;
+    const data = {
+      prenom: (form.elements.namedItem("prenom") as HTMLInputElement).value,
+      nom: (form.elements.namedItem("nom") as HTMLInputElement).value,
+      telephone: (form.elements.namedItem("telephone") as HTMLInputElement).value,
+      email: (form.elements.namedItem("email") as HTMLInputElement).value,
+      statut,
+      assurance: (form.elements.namedItem("assurance") as HTMLSelectElement).value,
+      siret: (form.elements.namedItem("siret") as HTMLInputElement | null)?.value || "",
+      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+    };
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.error ?? "Erreur lors de l'envoi");
+      }
+
+      setSubmitted(true);
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Une erreur est survenue. Appelez-nous au 09 86 11 32 57."
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (submitted) {
@@ -70,6 +106,7 @@ export default function ContactForm() {
           </label>
           <input
             id="prenom"
+            name="prenom"
             type="text"
             placeholder="Votre prénom"
             required
@@ -82,6 +119,7 @@ export default function ContactForm() {
           </label>
           <input
             id="nom"
+            name="nom"
             type="text"
             placeholder="Votre nom"
             required
@@ -97,6 +135,7 @@ export default function ContactForm() {
           </label>
           <input
             id="telephone"
+            name="telephone"
             type="tel"
             placeholder="06 XX XX XX XX"
             required
@@ -109,6 +148,7 @@ export default function ContactForm() {
           </label>
           <input
             id="email"
+            name="email"
             type="email"
             placeholder="votre@email.fr"
             required
@@ -124,6 +164,7 @@ export default function ContactForm() {
           </label>
           <select
             id="statut"
+            name="statut"
             value={statut}
             onChange={(e) =>
               setStatut(e.target.value as "particulier" | "professionnel")
@@ -138,7 +179,7 @@ export default function ContactForm() {
           <label className={labelClass} htmlFor="assurance">
             Type d&apos;assurance
           </label>
-          <select id="assurance" className={inputClass}>
+          <select id="assurance" name="assurance" className={inputClass}>
             <option value="">Sélectionnez...</option>
             {insuranceTypes.map((t) => (
               <option key={t} value={t}>
@@ -156,6 +197,7 @@ export default function ContactForm() {
           </label>
           <input
             id="siret"
+            name="siret"
             type="text"
             placeholder="123 456 789 00012"
             maxLength={17}
@@ -170,6 +212,7 @@ export default function ContactForm() {
         </label>
         <textarea
           id="message"
+          name="message"
           rows={4}
           placeholder="Décrivez votre besoin en assurance..."
           className={`${inputClass} resize-none`}
@@ -197,12 +240,18 @@ export default function ContactForm() {
         </label>
       </div>
 
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+
       <button
         type="submit"
-        disabled={!rgpd}
+        disabled={!rgpd || loading}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-4 transition-colors shadow-md shadow-blue-100"
       >
-        Envoyer ma demande
+        {loading ? "Envoi en cours…" : "Envoyer ma demande"}
       </button>
 
       <p className="text-center text-slate-400 text-xs">

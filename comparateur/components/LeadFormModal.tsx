@@ -59,6 +59,7 @@ export default function LeadFormModal({ onClose, onSubmit, insuranceType, profil
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    alert("DEBUG: formulaire soumis — envoi en cours…");
     setLoading(true);
     setError(null);
 
@@ -81,7 +82,31 @@ export default function LeadFormModal({ onClose, onSubmit, insuranceType, profil
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(lead),
       });
-      if (!res.ok) throw new Error("Erreur lors de l'envoi");
+      const resData = await res.json().catch(() => null);
+      alert("DEBUG: réponse API = " + JSON.stringify(resData));
+      if (!res.ok) throw new Error(resData?.error ?? "Erreur lors de l'envoi");
+      if (resData && !resData.emailSent) {
+        console.warn("[LeadForm] Lead enregistré mais email NON envoyé (RESEND_API_KEY manquante ?)");
+      }
+
+      // ── Tracking conversion ───────────────────────────────
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const w = typeof window !== "undefined" ? (window as Record<string, any>) : null;
+      if (w) {
+        if (typeof w.gtag === "function") {
+          w.gtag("event", "generate_lead", {
+            event_category: "lead",
+            event_label: insuranceType ?? "assurance",
+            value: 1,
+          });
+        }
+        if (typeof w.fbq === "function") {
+          w.fbq("track", "Lead", {
+            content_name: insuranceType ?? "assurance",
+          });
+        }
+      }
+
       onSubmit(lead);
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer ou nous contacter directement.");
