@@ -1,6 +1,10 @@
 import Image from "next/image";
+import Link from "next/link";
 import ContactForm from "./components/ContactForm";
+import GoogleMap from "./components/GoogleMap";
 import { getGoogleReviews, filterReviews } from "@/lib/googleReviews";
+
+const PLACE_ID_TRACHEL = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
 
 /* ─────────────────────────────────────────────────────────────────────────
    CONSTANTS
@@ -766,6 +770,22 @@ export default async function Home() {
                     →
                   </span>
                 </a>
+
+                {/* Carte du siège */}
+                <div className="space-y-2">
+                  <GoogleMap
+                    placeId={PLACE_ID_TRACHEL}
+                    height="280px"
+                    title="Carte Google Maps — siège HT Assurance, 25 rue Trachel, Nice"
+                  />
+                  <Link
+                    href="/plan-acces"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  >
+                    Voir les 2 bureaux & accès
+                    <span aria-hidden>→</span>
+                  </Link>
+                </div>
               </div>
 
               {/* Form */}
