@@ -52,6 +52,91 @@ export default function RootLayout({
             __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
           }}
         />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@graph": [
+                {
+                  "@type": "Organization",
+                  "@id": "https://www.htassurance.fr/#organization",
+                  name: "HT Assurance",
+                  url: "https://www.htassurance.fr",
+                  logo: "https://www.htassurance.fr/logo.png",
+                  description:
+                    "Cabinet de courtage en assurance indépendant à Nice. Décennale, emprunteur, RC Pro, habitation, auto, contestation de sinistres refusés.",
+                  email: "talelhakimi06@gmail.com",
+                  telephone: "+33986113257",
+                  founder: { "@type": "Person", name: "Talel Hakimi" },
+                  sameAs: [
+                    "https://wa.me/33986113257",
+                    "https://www.google.com/search?q=HT+Assurance+Nice",
+                  ],
+                },
+                {
+                  "@type": ["LocalBusiness", "InsuranceAgency", "FinancialService"],
+                  "@id": "https://www.htassurance.fr/#localbusiness",
+                  name: "HT Assurance",
+                  image: "https://www.htassurance.fr/logo.png",
+                  url: "https://www.htassurance.fr",
+                  telephone: "+33986113257",
+                  priceRange: "Gratuit",
+                  address: {
+                    "@type": "PostalAddress",
+                    addressLocality: "Nice",
+                    addressRegion: "Alpes-Maritimes",
+                    postalCode: "06000",
+                    addressCountry: "FR",
+                  },
+                  geo: {
+                    "@type": "GeoCoordinates",
+                    latitude: 43.7102,
+                    longitude: 7.262,
+                  },
+                  areaServed: [
+                    { "@type": "City", name: "Nice" },
+                    { "@type": "City", name: "Cannes" },
+                    { "@type": "City", name: "Antibes" },
+                    { "@type": "City", name: "Monaco" },
+                    { "@type": "Country", name: "France" },
+                  ],
+                  openingHoursSpecification: [
+                    {
+                      "@type": "OpeningHoursSpecification",
+                      dayOfWeek: [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday",
+                      ],
+                      opens: "10:00",
+                      closes: "19:00",
+                    },
+                  ],
+                  serviceType: [
+                    "Courtage en assurance",
+                    "Assurance décennale",
+                    "Assurance emprunteur",
+                    "RC Pro",
+                    "Assurance habitation",
+                    "Assurance auto",
+                    "Contestation de sinistre refusé",
+                  ],
+                },
+                {
+                  "@type": "WebSite",
+                  "@id": "https://www.htassurance.fr/#website",
+                  url: "https://www.htassurance.fr",
+                  name: "HT Assurance",
+                  inLanguage: "fr-FR",
+                  publisher: { "@id": "https://www.htassurance.fr/#organization" },
+                },
+              ],
+            }),
+          }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}

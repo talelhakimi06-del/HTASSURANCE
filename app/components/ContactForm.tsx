@@ -16,14 +16,11 @@ const insuranceTypes = [
   "Assurance auto",
   "Assurance VTC",
   "Mutuelle santé",
+  "Sinistre refusé",
   "Autre",
 ];
 
 export default function ContactForm() {
-  const [statut, setStatut] = useState<"particulier" | "professionnel">(
-    "particulier"
-  );
-  const [rgpd, setRgpd] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -36,13 +33,14 @@ export default function ContactForm() {
     const form = e.currentTarget;
     const data = {
       prenom: (form.elements.namedItem("prenom") as HTMLInputElement).value,
-      nom: (form.elements.namedItem("nom") as HTMLInputElement).value,
       telephone: (form.elements.namedItem("telephone") as HTMLInputElement).value,
       email: (form.elements.namedItem("email") as HTMLInputElement).value,
-      statut,
       assurance: (form.elements.namedItem("assurance") as HTMLSelectElement).value,
-      siret: (form.elements.namedItem("siret") as HTMLInputElement | null)?.value || "",
-      message: (form.elements.namedItem("message") as HTMLTextAreaElement).value,
+      // champs optionnels conservés pour compatibilité backend
+      nom: "",
+      statut: "particulier",
+      siret: "",
+      message: "",
     };
 
     try {
@@ -88,10 +86,14 @@ export default function ContactForm() {
           </svg>
         </div>
         <h3 className="text-xl font-bold text-slate-900">
-          Demande envoyée !
+          Demande reçue !
         </h3>
         <p className="text-slate-500 max-w-sm">
-          Nous avons bien reçu votre message. Un conseiller vous recontacte dans les plus brefs délais.
+          On vous rappelle sous 24h ouvrées. Pour une urgence, appelez le{" "}
+          <a href="tel:+33986113257" className="text-blue-600 font-semibold">
+            09 86 11 32 57
+          </a>
+          .
         </p>
       </div>
     );
@@ -99,33 +101,19 @@ export default function ContactForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label className={labelClass} htmlFor="prenom">
-            Prénom <span className="text-blue-500">*</span>
-          </label>
-          <input
-            id="prenom"
-            name="prenom"
-            type="text"
-            placeholder="Votre prénom"
-            required
-            className={inputClass}
-          />
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="nom">
-            Nom <span className="text-blue-500">*</span>
-          </label>
-          <input
-            id="nom"
-            name="nom"
-            type="text"
-            placeholder="Votre nom"
-            required
-            className={inputClass}
-          />
-        </div>
+      <div>
+        <label className={labelClass} htmlFor="prenom">
+          Prénom <span className="text-blue-500">*</span>
+        </label>
+        <input
+          id="prenom"
+          name="prenom"
+          type="text"
+          placeholder="Votre prénom"
+          required
+          autoComplete="given-name"
+          className={inputClass}
+        />
       </div>
 
       <div className="grid sm:grid-cols-2 gap-5">
@@ -139,6 +127,7 @@ export default function ContactForm() {
             type="tel"
             placeholder="06 XX XX XX XX"
             required
+            autoComplete="tel"
             className={inputClass}
           />
         </div>
@@ -152,92 +141,32 @@ export default function ContactForm() {
             type="email"
             placeholder="votre@email.fr"
             required
+            autoComplete="email"
             className={inputClass}
           />
         </div>
       </div>
-
-      <div className="grid sm:grid-cols-2 gap-5">
-        <div>
-          <label className={labelClass} htmlFor="statut">
-            Vous êtes
-          </label>
-          <select
-            id="statut"
-            name="statut"
-            value={statut}
-            onChange={(e) =>
-              setStatut(e.target.value as "particulier" | "professionnel")
-            }
-            className={inputClass}
-          >
-            <option value="particulier">Particulier</option>
-            <option value="professionnel">Professionnel</option>
-          </select>
-        </div>
-        <div>
-          <label className={labelClass} htmlFor="assurance">
-            Type d&apos;assurance
-          </label>
-          <select id="assurance" name="assurance" className={inputClass}>
-            <option value="">Sélectionnez...</option>
-            {insuranceTypes.map((t) => (
-              <option key={t} value={t}>
-                {t}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      {statut === "professionnel" && (
-        <div>
-          <label className={labelClass} htmlFor="siret">
-            Numéro SIRET
-          </label>
-          <input
-            id="siret"
-            name="siret"
-            type="text"
-            placeholder="123 456 789 00012"
-            maxLength={17}
-            className={inputClass}
-          />
-        </div>
-      )}
 
       <div>
-        <label className={labelClass} htmlFor="message">
-          Message
+        <label className={labelClass} htmlFor="assurance">
+          Type d&apos;assurance <span className="text-blue-500">*</span>
         </label>
-        <textarea
-          id="message"
-          name="message"
-          rows={4}
-          placeholder="Décrivez votre besoin en assurance..."
-          className={`${inputClass} resize-none`}
-        />
-      </div>
-
-      <div className="flex items-start gap-3 bg-slate-50 rounded-xl p-4 border border-slate-200">
-        <input
-          id="rgpd"
-          type="checkbox"
-          checked={rgpd}
-          onChange={(e) => setRgpd(e.target.checked)}
-          className="mt-0.5 w-4 h-4 rounded border-slate-300 accent-blue-600 cursor-pointer flex-shrink-0"
-        />
-        <label
-          htmlFor="rgpd"
-          className="text-xs text-slate-500 leading-relaxed cursor-pointer"
+        <select
+          id="assurance"
+          name="assurance"
+          required
+          defaultValue=""
+          className={inputClass}
         >
-          J&apos;accepte que mes données personnelles soient utilisées pour traiter ma
-          demande, conformément à la{" "}
-          <a href="#" className="underline hover:text-slate-700">
-            politique de confidentialité
-          </a>{" "}
-          de HT Assurance.
-        </label>
+          <option value="" disabled>
+            Sélectionnez votre besoin…
+          </option>
+          {insuranceTypes.map((t) => (
+            <option key={t} value={t}>
+              {t}
+            </option>
+          ))}
+        </select>
       </div>
 
       {error && (
@@ -248,14 +177,22 @@ export default function ContactForm() {
 
       <button
         type="submit"
-        disabled={!rgpd || loading}
+        disabled={loading}
         className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-semibold rounded-xl py-4 transition-colors shadow-md shadow-blue-100"
       >
-        {loading ? "Envoi en cours…" : "Envoyer ma demande"}
+        {loading ? "Envoi en cours…" : "Recevoir mon audit gratuit"}
       </button>
 
-      <p className="text-center text-slate-400 text-xs">
-        Réponse garantie sous 24h — Aucun démarchage commercial.
+      <p className="text-center text-slate-400 text-xs leading-relaxed">
+        Réponse sous 24h ouvrées · Aucun démarchage. En soumettant, vous acceptez
+        notre{" "}
+        <a
+          href="/mentions-legales"
+          className="underline hover:text-slate-600"
+        >
+          politique de confidentialité
+        </a>
+        .
       </p>
     </form>
   );

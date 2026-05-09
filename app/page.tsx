@@ -179,12 +179,9 @@ const partners = [
 ];
 
 /*
- * AVIS CLIENTS — PLACEHOLDERS
- * Ces cartes sont structurées pour accueillir de vrais avis Google.
- * Pour intégrer de vrais avis :
- *   1. Récupérez les avis depuis votre Google Business Profile
- *   2. Remplacez le tableau `reviews` ci-dessous par les vraies données
- *   3. Mettez à jour les champs name, location, text et date
+ * AVIS CLIENTS RÉELS
+ * Ne JAMAIS mettre de placeholders : tableau vide masque automatiquement la section.
+ * Quand un client laisse un avis Google, ajoute-le ici avec son vrai nom, ville et date.
  */
 const reviews: {
   name: string;
@@ -192,32 +189,7 @@ const reviews: {
   text: string;
   rating: number;
   date: string;
-}[] = [
-  /* PLACEHOLDER — remplacer par un vrai avis Google */
-  {
-    name: "Avis client",
-    location: "Nice",
-    text: "Cet espace est réservé à un témoignage client réel. Contactez HT Assurance pour obtenir vos premiers avis Google et les intégrer ici.",
-    rating: 5,
-    date: "À venir",
-  },
-  /* PLACEHOLDER — remplacer par un vrai avis Google */
-  {
-    name: "Avis client",
-    location: "Nice",
-    text: "Cet espace est réservé à un témoignage client réel. Contactez HT Assurance pour obtenir vos premiers avis Google et les intégrer ici.",
-    rating: 5,
-    date: "À venir",
-  },
-  /* PLACEHOLDER — remplacer par un vrai avis Google */
-  {
-    name: "Avis client",
-    location: "Nice",
-    text: "Cet espace est réservé à un témoignage client réel. Contactez HT Assurance pour obtenir vos premiers avis Google et les intégrer ici.",
-    rating: 5,
-    date: "À venir",
-  },
-];
+}[] = [];
 
 /* ─────────────────────────────────────────────────────────────────────────
    SMALL REUSABLE COMPONENTS
@@ -348,29 +320,23 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row flex-wrap gap-4">
-              {/* Comparateur IA — CTA principal */}
+              {/* CTA PRINCIPAL — audit gratuit (capture email) */}
+              <a
+                href="#contact"
+                className="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl px-8 py-4 transition-all shadow-lg shadow-blue-900/40 hover:shadow-xl hover:-translate-y-0.5"
+              >
+                Recevoir mon audit gratuit
+                <span className="text-blue-200 text-xs font-normal">en 24h</span>
+              </a>
+              {/* CTA SECONDAIRE — comparateur IA */}
               <a
                 href="/comparateur"
-                className="inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-blue-500 to-violet-600 hover:from-blue-600 hover:to-violet-700 text-white font-bold rounded-xl px-8 py-4 transition-all shadow-lg shadow-violet-900/40 hover:shadow-xl hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2.5 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold rounded-xl px-8 py-4 transition-colors backdrop-blur-sm"
               >
                 <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                   <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                 </svg>
-                Comparer mes assurances IA
-                <span className="text-violet-200 text-xs font-normal">2 min</span>
-              </a>
-              <a
-                href="#contact"
-                className="inline-flex items-center justify-center bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold rounded-xl px-8 py-4 transition-colors backdrop-blur-sm"
-              >
-                Demander un audit gratuit
-              </a>
-              <a
-                href={PHONE_HREF}
-                className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 border border-white/25 text-white font-semibold rounded-xl px-8 py-4 transition-colors backdrop-blur-sm"
-              >
-                <Icon d={ICONS.phone} className="w-5 h-5" />
-                Être rappelé
+                Essayer le comparateur IA
               </a>
             </div>
 
@@ -515,12 +481,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ REVIEWS ══════════════════════════════════════════════════
-            NOTE: Ces avis sont des placeholders.
-            Pour intégrer de vrais avis Google :
-            1. Récupérez les avis sur votre fiche Google Business Profile
-            2. Remplacez le tableau `reviews` en haut de ce fichier
-        ════════════════════════════════════════════════════════════════ */}
+        {/* ══ REVIEWS — affichée uniquement si ≥ 1 avis réel ═══════════ */}
+        {reviews.length > 0 && (
         <section id="avis" className="py-24 px-6 bg-slate-50 scroll-mt-20">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
@@ -574,6 +536,7 @@ export default function Home() {
             </div>
           </div>
         </section>
+        )}
 
         {/* ══ PARTNERS ════════════════════════════════════════════════ */}
         <section className="py-14 px-6 bg-slate-50 border-y border-slate-200">
@@ -845,12 +808,12 @@ export default function Home() {
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <a href="/mentions-legales" className="hover:text-white transition-colors">
                     Mentions légales
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-white transition-colors">
+                  <a href="/mentions-legales#donnees-personnelles" className="hover:text-white transition-colors">
                     Politique de confidentialité
                   </a>
                 </li>
