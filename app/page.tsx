@@ -4,6 +4,7 @@ import ContactForm from "./components/ContactForm";
 import GoogleMap from "./components/GoogleMap";
 import GoogleReviews from "./components/GoogleReviews";
 import GoogleRatingBadge from "./components/GoogleRatingBadge";
+import CookieManageButton from "./components/CookieManageButton";
 
 const PLACE_ID_TRACHEL = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
 
@@ -776,9 +777,17 @@ export default async function Home() {
                   </a>
                 </li>
                 <li>
-                  <a href="/mentions-legales#donnees-personnelles" className="hover:text-white transition-colors">
+                  <a href="/politique-confidentialite" className="hover:text-white transition-colors">
                     Politique de confidentialité
                   </a>
+                </li>
+                <li>
+                  <a href="/cookies" className="hover:text-white transition-colors">
+                    Cookies
+                  </a>
+                </li>
+                <li>
+                  <CookieManageButton />
                 </li>
               </ul>
             </div>

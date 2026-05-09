@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-const GA_ID = process.env.NEXT_PUBLIC_GA_ID ?? "G-SLL7N7KBG7";
+import RecaptchaProvider from "./components/RecaptchaProvider";
+import CookieBanner from "./components/CookieBanner";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,15 +44,8 @@ export default function RootLayout({
   return (
     <html lang="fr">
       <head>
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
-          }}
-        />
+        {/* GA4 chargé côté client UNIQUEMENT après consentement explicite,
+            voir <GoogleAnalytics /> en bas du <body>. Conforme RGPD/CNIL. */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -141,7 +135,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <RecaptchaProvider>{children}</RecaptchaProvider>
+        <CookieBanner />
+        <GoogleAnalytics />
       </body>
     </html>
   );

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 
 const inputClass =
   "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition";
@@ -20,52 +21,91 @@ const insuranceTypes = [
   "Autre",
 ];
 
+/* GA4 event helper — n'envoie l'event que si gtag est disponible. */
+type GtagFn = (
+  command: "event",
+  eventName: string,
+  params?: Record<string, unknown>
+) => void;
+
+function trackEvent(name: string, params?: Record<string, unknown>) {
+  if (typeof window === "undefined") return;
+  const w = window as unknown as { gtag?: GtagFn };
+  if (typeof w.gtag === "function") {
+    w.gtag("event", name, params);
+  }
+}
+
 export default function ContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { executeRecaptcha } = useGoogleReCaptcha();
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setLoading(true);
+      setError(null);
 
-    const form = e.currentTarget;
-    const data = {
-      prenom: (form.elements.namedItem("prenom") as HTMLInputElement).value,
-      telephone: (form.elements.namedItem("telephone") as HTMLInputElement).value,
-      email: (form.elements.namedItem("email") as HTMLInputElement).value,
-      assurance: (form.elements.namedItem("assurance") as HTMLSelectElement).value,
-      // champs optionnels conservés pour compatibilité backend
-      nom: "",
-      statut: "particulier",
-      siret: "",
-      message: "",
-    };
+      const form = e.currentTarget;
 
-    try {
-      const res = await fetch("/api/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-      });
-
-      if (!res.ok) {
-        const err = await res.json().catch(() => null);
-        throw new Error(err?.error ?? "Erreur lors de l'envoi");
+      // Récupère un token reCAPTCHA si le provider est dispo (v3, score-based,
+      // pas d'interaction utilisateur).
+      let recaptchaToken: string | null = null;
+      if (executeRecaptcha) {
+        try {
+          recaptchaToken = await executeRecaptcha("contact_form");
+        } catch {
+          // En cas d'échec (réseau, blocage), on continue sans bloquer
+          // le user — la route serveur acceptera ou refusera selon sa
+          // config (RECAPTCHA_SECRET_KEY absent = check skippé).
+          recaptchaToken = null;
+        }
       }
 
-      setSubmitted(true);
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : "Une erreur est survenue. Appelez-nous au 09 86 11 32 57."
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+      const data = {
+        prenom: (form.elements.namedItem("prenom") as HTMLInputElement).value,
+        telephone: (form.elements.namedItem("telephone") as HTMLInputElement).value,
+        email: (form.elements.namedItem("email") as HTMLInputElement).value,
+        assurance: (form.elements.namedItem("assurance") as HTMLSelectElement).value,
+        // champs optionnels conservés pour compatibilité backend
+        nom: "",
+        statut: "particulier",
+        siret: "",
+        message: "",
+        recaptchaToken,
+      };
+
+      try {
+        const res = await fetch("/api/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => null);
+          throw new Error(err?.error ?? "Erreur lors de l'envoi");
+        }
+
+        setSubmitted(true);
+        trackEvent("form_submit", {
+          form_name: "contact",
+          assurance: data.assurance,
+        });
+      } catch (err) {
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Une erreur est survenue. Appelez-nous au 09 86 11 32 57."
+        );
+      } finally {
+        setLoading(false);
+      }
+    },
+    [executeRecaptcha]
+  );
 
   if (submitted) {
     return (
@@ -85,9 +125,7 @@ export default function ContactForm() {
             />
           </svg>
         </div>
-        <h3 className="text-xl font-bold text-slate-900">
-          Demande reçue !
-        </h3>
+        <h3 className="text-xl font-bold text-slate-900">Demande reçue !</h3>
         <p className="text-slate-500 max-w-sm">
           On vous rappelle sous 24h ouvrées. Pour une urgence, appelez le{" "}
           <a href="tel:+33986113257" className="text-blue-600 font-semibold">
@@ -193,6 +231,29 @@ export default function ContactForm() {
           politique de confidentialité
         </a>
         .
+      </p>
+
+      {/* Mention reCAPTCHA obligatoire si on n'affiche pas le badge visible */}
+      <p className="text-center text-slate-400 text-[11px] leading-relaxed">
+        Ce site est protégé par reCAPTCHA. La{" "}
+        <a
+          href="https://policies.google.com/privacy"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-slate-600"
+        >
+          politique de confidentialité
+        </a>{" "}
+        et les{" "}
+        <a
+          href="https://policies.google.com/terms"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-slate-600"
+        >
+          conditions d&apos;utilisation
+        </a>{" "}
+        de Google s&apos;appliquent.
       </p>
     </form>
   );

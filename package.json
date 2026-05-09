@@ -7,21 +7,26 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:immat": "tsx scripts/test-immatriculation.ts"
+    "test:immat": "tsx scripts/test-immatriculation.ts",
+    "check:secrets": "node scripts/check-secrets.js",
+    "check:secrets:staged": "node scripts/check-secrets.js --staged"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@vercel/kv": "^3.0.0",
     "axios": "^1.13.6",
     "dotenv": "^17.3.1",
+    "googleapis": "^171.4.0",
     "gray-matter": "^4.0.3",
     "next": "16.1.6",
     "openai": "^6.27.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-google-recaptcha-v3": "^1.11.0",
     "react-markdown": "^10.1.0",
+    "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
-    "resend": "^6.9.3",
+    "resend": "^6.12.3",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {
