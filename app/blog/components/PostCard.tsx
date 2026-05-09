@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PostMeta } from "../lib/types";
 
 const CATEGORY_COLORS: Record<string, string> = {
+  "Sinistres": "bg-red-100 text-red-700",
   "Décennale": "bg-orange-100 text-orange-700",
   "Assurance VTC": "bg-violet-100 text-violet-700",
   "RC Pro": "bg-blue-100 text-blue-700",

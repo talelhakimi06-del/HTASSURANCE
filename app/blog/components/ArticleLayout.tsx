@@ -8,6 +8,7 @@ const WA_HREF =
   "https://wa.me/33986113257?text=Bonjour%2C%20j%27ai%20lu%20un%20article%20sur%20votre%20site%20et%20je%20souhaite%20un%20conseil%20en%20assurance.%20Pouvez-vous%20me%20recontacter%20%3F";
 
 const CATEGORY_COLORS: Record<string, string> = {
+  "Sinistres": "bg-red-100 text-red-700",
   "Décennale": "bg-orange-100 text-orange-700",
   "Assurance VTC": "bg-violet-100 text-violet-700",
   "RC Pro": "bg-blue-100 text-blue-700",

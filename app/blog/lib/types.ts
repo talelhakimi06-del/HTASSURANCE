@@ -3,7 +3,8 @@ export type Category =
   | "Assurance VTC"
   | "RC Pro"
   | "Assurance emprunteur"
-  | "Habitation";
+  | "Habitation"
+  | "Sinistres";
 
 export type PostMeta = {
   slug: string;
