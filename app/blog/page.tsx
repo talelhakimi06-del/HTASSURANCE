@@ -8,9 +8,13 @@ export const metadata: Metadata = {
   title: "Blog Assurance — Conseils et Guides par HT Assurance Nice",
   description:
     "Décennale, VTC, RC Pro, emprunteur, habitation : retrouvez tous nos guides pratiques pour comprendre et optimiser vos assurances. Conseils d'experts à Nice.",
+  alternates: {
+    canonical: "https://www.htassurance.fr/blog",
+  },
 };
 
 const CATEGORIES: Category[] = [
+  "Sinistres",
   "Décennale",
   "Assurance VTC",
   "RC Pro",
@@ -19,6 +23,7 @@ const CATEGORIES: Category[] = [
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
+  "Sinistres": "bg-red-100 text-red-700 hover:bg-red-200",
   "Décennale": "bg-orange-100 text-orange-700 hover:bg-orange-200",
   "Assurance VTC": "bg-violet-100 text-violet-700 hover:bg-violet-200",
   "RC Pro": "bg-blue-100 text-blue-700 hover:bg-blue-200",

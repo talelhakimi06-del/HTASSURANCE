@@ -15,12 +15,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const post = getPost(slug);
   if (!post) return {};
+  const canonical = `https://www.htassurance.fr/blog/${slug}`;
   return {
     title: post.seoTitle,
     description: post.description,
+    alternates: {
+      canonical,
+    },
     openGraph: {
       title: post.seoTitle,
       description: post.description,
+      url: canonical,
       type: "article",
       locale: "fr_FR",
     },
