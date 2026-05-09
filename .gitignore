@@ -40,3 +40,10 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 .env*.local
+
+# private documents (never commit)
+/public/photos/Avis_*.pdf
+/public/photos/*.pdf
+/strategie-acquisition-organique.pptx
+/*.pptx
+

@@ -1,29 +1,7 @@
 import type { MetadataRoute } from "next";
+import { getAllMeta } from "./blog/lib/posts";
 
 const BASE = "https://www.htassurance.fr";
-
-const blogSlugs = [
-  "assurance-decennale-auto-entrepreneur",
-  "assurance-decennale-etancheite",
-  "assurance-decennale-sans-experience",
-  "assurance-emprunteur-moins-chere",
-  "assurance-locataire-obligatoire",
-  "assurance-pno-definition",
-  "assurance-vtc-obligatoire",
-  "assurance-vtc-pas-chere",
-  "assurance-vtc-resilie",
-  "assurance-vtc-uber-chauffeur",
-  "changer-assurance-emprunteur",
-  "courtier-assurance-decennale-nice",
-  "degat-des-eaux-assurance-que-faire",
-  "meilleure-assurance-vtc",
-  "prix-assurance-decennale-artisan",
-  "rc-pro-auto-entrepreneur",
-  "rc-pro-consultant",
-  "rc-pro-freelance",
-  "rc-pro-restaurant",
-  "refus-assurance-emprunteur-que-faire",
-];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
@@ -53,10 +31,16 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    {
+      url: `${BASE}/gpt-comparateur`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
   ];
 
-  const blogPages: MetadataRoute.Sitemap = blogSlugs.map((slug) => ({
-    url: `${BASE}/blog/${slug}`,
+  const blogPages: MetadataRoute.Sitemap = getAllMeta().map((post) => ({
+    url: `${BASE}/blog/${post.slug}`,
     lastModified: now,
     changeFrequency: "monthly" as const,
     priority: 0.7,

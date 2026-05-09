@@ -1,4 +1,5 @@
 import type { Post } from "./types";
+import { getMdPosts } from "./mdPosts";
 
 import * as p1 from "../posts/assurance-decennale-etancheite";
 import * as p2 from "../posts/assurance-decennale-auto-entrepreneur";
@@ -20,8 +21,19 @@ import * as p17 from "../posts/refus-assurance-emprunteur-que-faire";
 import * as p18 from "../posts/assurance-locataire-obligatoire";
 import * as p19 from "../posts/assurance-pno-definition";
 import * as p20 from "../posts/degat-des-eaux-assurance-que-faire";
+// Sinistres
+import * as s1 from "../posts/assurance-refuse-sinistre-que-faire";
+import * as s2 from "../posts/motifs-refus-assurance-habitation";
+import * as s3 from "../posts/degat-des-eaux-assurance-refuse";
+import * as s4 from "../posts/contre-expertise-assurance-comment-faire";
+import * as s5 from "../posts/mediateur-assurance-saisine-guide";
+import * as s6 from "../posts/lettre-mise-en-demeure-assureur-modele";
+import * as s7 from "../posts/sinistre-auto-refuse-assurance-recours";
+import * as s8 from "../posts/fissures-secheresse-assurance-catastrophe-naturelle";
+import * as s9 from "../posts/assurance-refuse-vol-cambriolage";
+import * as s10 from "../posts/indemnisation-insuffisante-assurance-contester";
 
-export const posts: Post[] = [
+const tsxPosts: Post[] = [
   { ...p1.meta, Content: p1.default },
   { ...p2.meta, Content: p2.default },
   { ...p3.meta, Content: p3.default },
@@ -42,7 +54,23 @@ export const posts: Post[] = [
   { ...p18.meta, Content: p18.default },
   { ...p19.meta, Content: p19.default },
   { ...p20.meta, Content: p20.default },
+  // Sinistres
+  { ...s1.meta, Content: s1.default },
+  { ...s2.meta, Content: s2.default },
+  { ...s3.meta, Content: s3.default },
+  { ...s4.meta, Content: s4.default },
+  { ...s5.meta, Content: s5.default },
+  { ...s6.meta, Content: s6.default },
+  { ...s7.meta, Content: s7.default },
+  { ...s8.meta, Content: s8.default },
+  { ...s9.meta, Content: s9.default },
+  { ...s10.meta, Content: s10.default },
 ];
+
+const tsxSlugs = new Set(tsxPosts.map((p) => p.slug));
+const mdPosts: Post[] = getMdPosts().filter((p) => !tsxSlugs.has(p.slug));
+
+export const posts: Post[] = [...tsxPosts, ...mdPosts];
 
 export function getPost(slug: string): Post | undefined {
   return posts.find((p) => p.slug === slug);
