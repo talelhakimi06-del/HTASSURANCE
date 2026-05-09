@@ -1,5 +1,6 @@
 import Image from "next/image";
 import ContactForm from "./components/ContactForm";
+import { getGoogleReviews, filterReviews } from "@/lib/googleReviews";
 
 /* ─────────────────────────────────────────────────────────────────────────
    CONSTANTS
@@ -178,18 +179,9 @@ const partners = [
   { name: "Swiss Life",         src: "/logos/swisslife.svg",  w: 130, h: 48 },
 ];
 
-/*
- * AVIS CLIENTS RÉELS
- * Ne JAMAIS mettre de placeholders : tableau vide masque automatiquement la section.
- * Quand un client laisse un avis Google, ajoute-le ici avec son vrai nom, ville et date.
- */
-const reviews: {
-  name: string;
-  location: string;
-  text: string;
-  rating: number;
-  date: string;
-}[] = [];
+/* Les avis sont fetchés en live depuis Google Places API (lib/googleReviews.ts).
+   Section masquée automatiquement si l'API ne renvoie rien (clé manquante,
+   erreur, ou aucun avis ≥ 4 étoiles). */
 
 /* ─────────────────────────────────────────────────────────────────────────
    SMALL REUSABLE COMPONENTS
@@ -222,7 +214,10 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
    PAGE
 ───────────────────────────────────────────────────────────────────────── */
 
-export default function Home() {
+export default async function Home() {
+  const googleData = await getGoogleReviews();
+  const displayReviews = filterReviews(googleData.reviews, 4, 6);
+
   return (
     <div className="min-h-screen bg-slate-50">
 
@@ -481,8 +476,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* ══ REVIEWS — affichée uniquement si ≥ 1 avis réel ═══════════ */}
-        {reviews.length > 0 && (
+        {/* ══ REVIEWS — fetch live depuis Google Places API ═══════════
+            La section ne s'affiche que si l'API renvoie au moins un avis ≥4⭐.
+            Sans GOOGLE_PLACES_API_KEY configurée → tableau vide → masqué.
+        ════════════════════════════════════════════════════════════════ */}
+        {displayReviews.length > 0 && (
         <section id="avis" className="py-24 px-6 bg-slate-50 scroll-mt-20">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-14">
@@ -490,33 +488,52 @@ export default function Home() {
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Ce que disent nos clients
               </h2>
+              <div className="flex items-center justify-center gap-3 mb-2">
+                <StarRating rating={Math.round(googleData.rating)} />
+                <span className="text-sm font-semibold text-slate-700">
+                  {googleData.rating.toFixed(1)}/5
+                </span>
+                <span className="text-sm text-slate-500">
+                  ({googleData.totalReviews} avis Google)
+                </span>
+              </div>
               <p className="text-slate-500 max-w-xl mx-auto">
-                La confiance de nos clients est notre meilleure récompense.
+                Avis vérifiés sur Google Business — mis à jour chaque jour.
               </p>
             </div>
 
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {reviews.map((review, i) => (
+              {displayReviews.map((review, i) => (
                 <div
                   key={i}
                   className="bg-white rounded-2xl p-7 shadow-sm border border-slate-100 flex flex-col gap-4"
                 >
                   <div className="flex items-center justify-between">
                     <StarRating rating={review.rating} />
-                    <span className="text-xs text-slate-400">{review.date}</span>
+                    <span className="text-xs text-slate-400">{review.relativeTime}</span>
                   </div>
                   <p className="text-slate-500 text-sm leading-relaxed italic flex-1">
                     &ldquo;{review.text}&rdquo;
                   </p>
                   <div className="flex items-center gap-3 pt-2 border-t border-slate-100">
-                    <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-sm">
-                      {review.name[0]}
-                    </div>
+                    {review.authorPhoto ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={review.authorPhoto}
+                        alt={review.authorName}
+                        className="w-9 h-9 rounded-full object-cover"
+                        referrerPolicy="no-referrer"
+                      />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 font-bold text-sm">
+                        {review.authorName[0]}
+                      </div>
+                    )}
                     <div>
                       <p className="text-sm font-semibold text-slate-700">
-                        {review.name}
+                        {review.authorName}
                       </p>
-                      <p className="text-xs text-slate-400">{review.location}</p>
+                      <p className="text-xs text-slate-400">Avis Google</p>
                     </div>
                   </div>
                 </div>
@@ -525,12 +542,12 @@ export default function Home() {
 
             <div className="text-center mt-10">
               <a
-                href="https://www.google.com/search?q=HT+Assurance+Nice+avis"
+                href="https://www.google.com/maps/place/?q=place_id:ChIJuSypYgbQzRIRqX2X-zuw5ao"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-slate-900 underline underline-offset-2 transition-colors"
               >
-                Voir tous les avis sur Google
+                Voir les {googleData.totalReviews} avis sur Google
                 <span>→</span>
               </a>
             </div>
