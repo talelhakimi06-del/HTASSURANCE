@@ -1,8 +1,10 @@
 import { NextRequest } from "next/server";
 import Anthropic from "@anthropic-ai/sdk";
-import { getSystemPrompt } from "../../_lib/systemPrompt";
+import { getSystemPrompt, getQuickModeSystemPrompt } from "../../_lib/systemPrompt";
 import { parseAiResponse } from "../../_lib/utils";
 import type { ChatRequest } from "../../_lib/types";
+
+type ExtendedChatRequest = ChatRequest & { quickMode?: boolean };
 
 export const maxDuration = 30;
 
@@ -23,19 +25,21 @@ export async function POST(req: NextRequest) {
 
   const client = new Anthropic({ apiKey });
 
-  let body: ChatRequest;
+  let body: ExtendedChatRequest;
   try {
     body = await req.json();
   } catch {
     return new Response(JSON.stringify({ error: "Requête invalide" }), { status: 400 });
   }
 
-  const { messages, mode } = body;
+  const { messages, mode, quickMode } = body;
   if (!messages || !Array.isArray(messages)) {
     return new Response(JSON.stringify({ error: "Messages requis" }), { status: 400 });
   }
 
-  const systemPrompt = getSystemPrompt(mode ?? "comparison");
+  const systemPrompt = quickMode
+    ? getQuickModeSystemPrompt()
+    : getSystemPrompt(mode ?? "comparison");
 
   const stream = new ReadableStream({
     async start(controller) {
@@ -43,7 +47,8 @@ export async function POST(req: NextRequest) {
         /* Modèle Haiku : 4× plus rapide que Sonnet pour cette tâche */
         const anthropicStream = client.messages.stream({
           model: (process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6").trim(),
-          max_tokens: 400,
+          /* quickMode : on génère 3-4 assureurs + leadReady → ~800 tokens. */
+          max_tokens: quickMode ? 900 : 400,
           system: systemPrompt,
           messages: messages.map((m) => ({
             role: m.role as "user" | "assistant",

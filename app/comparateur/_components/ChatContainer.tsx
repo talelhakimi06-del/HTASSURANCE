@@ -9,6 +9,8 @@ import ChatInput from "./ChatInput";
 import TypingIndicator from "./TypingIndicator";
 import LeadFormModal from "./LeadFormModal";
 import ModeToggle from "./ModeToggle";
+import ProductFormCard from "./ProductForm";
+import { findFormByLabel, type ProductForm } from "../_lib/forms";
 
 const PHONE = "0986113257";
 const WHATSAPP = "https://wa.me/33986113257?text=Bonjour%2C%20je%20souhaite%20un%20devis%20assurance";
@@ -238,6 +240,7 @@ export default function ChatContainer() {
   const [autoFill, setAutoFill] = useState<{ data: SiretData; pendingText: string } | null>(null);
   const [vehicleFill, setVehicleFill] = useState<{ data: VehicleData; pendingText: string } | null>(null);
   const [siretContext, setSiretContext] = useState<string>("");
+  const [activeForm, setActiveForm] = useState<ProductForm | null>(null);
 
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -284,6 +287,7 @@ export default function ChatContainer() {
     history: { role: "user" | "assistant"; content: string }[],
     currentMode: AppMode,
     currentPhaseVal: ConversationPhase,
+    quickMode = false,
   ) => {
     const tempId = genId();
 
@@ -301,7 +305,7 @@ export default function ChatContainer() {
       const res = await fetch("/comparateur/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ messages: history, mode: currentMode }),
+        body: JSON.stringify({ messages: history, mode: currentMode, quickMode }),
         signal: ctrl.signal,
       });
 
@@ -440,6 +444,19 @@ export default function ChatContainer() {
       window.open(WHATSAPP, "_blank");
     }
 
+    /* ⚡ Mode rapide — si le texte matche un produit avec formulaire dispo,
+       on ouvre le formulaire au lieu de relancer une conversation guidée. */
+    if (mode === "comparison" && currentPhase === "insurance_type") {
+      const form = findFormByLabel(text);
+      if (form) {
+        const userMsg: Message = { id: genId(), role: "user", content: text, timestamp: new Date() };
+        setMessages((prev) => [...prev, userMsg]);
+        setCollectedInsuranceType(form.product);
+        setActiveForm(form);
+        return;
+      }
+    }
+
     /* Vérifie plaque d'abord (avant SIRET) — seulement si pas de contexte déjà passé */
     if (!overrideContext) {
       const hasPlate = await tryEnrichPlate(text);
@@ -466,6 +483,38 @@ export default function ChatContainer() {
     const history = buildHistory(messages, userMsg, overrideContext ?? siretContext);
     await dispatchStream(history, mode, currentPhase);
   }, [messages, mode, isLoading, currentPhase, collectedInsuranceType, siretContext, tryEnrichSiret, tryEnrichPlate, dispatchStream]);
+
+  /* ⚡ Soumission du formulaire rapide — 1 seul appel IA */
+  const handleFormSubmit = useCallback(async (values: Record<string, string>) => {
+    if (!activeForm) return;
+
+    const summary = activeForm.fields
+      .map((f) => `- ${f.label} : ${values[f.name] || "—"}`)
+      .join("\n");
+
+    const payload = `[Formulaire complet — Mode rapide]
+Produit : ${activeForm.title}
+Données du client :
+${summary}
+
+Génère IMMÉDIATEMENT l'estimation au format JSON demandé, sans poser de question supplémentaire.`;
+
+    const userMsg: Message = {
+      id: genId(),
+      role: "user",
+      content: `J'ai rempli le formulaire ${activeForm.emoji} ${activeForm.title}`,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setActiveForm(null);
+    setCurrentPhase("estimation");
+
+    const history = [
+      ...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
+      { role: "user" as const, content: payload },
+    ];
+    await dispatchStream(history, mode, "estimation", true);
+  }, [activeForm, messages, mode, dispatchStream]);
 
   /* Confirmer AutoFillCard SIRET */
   function handleAutoFillConfirm() {
@@ -521,6 +570,7 @@ export default function ChatContainer() {
     setLeadReadyData(null);
     setVehicleFill(null);
     setSiretContext("");
+    setActiveForm(null);
   }
 
   function handleLeadSubmitted(lead: Lead) {
@@ -628,6 +678,16 @@ export default function ChatContainer() {
           />
         )}
 
+        {/* ⚡ Formulaire rapide — affiché quand l'user a choisi un produit */}
+        {activeForm && (
+          <ProductFormCard
+            form={activeForm}
+            onSubmit={handleFormSubmit}
+            onCancel={() => setActiveForm(null)}
+            loading={isLoading}
+          />
+        )}
+
         {isLoading && !messages.some((m) => m.streaming) && <TypingIndicator />}
 
         {/* LeadReadyCard */}
@@ -649,8 +709,14 @@ export default function ChatContainer() {
           /* Safe area pour iPhone avec notch/barre home */
           paddingBottom: "calc(1rem + env(safe-area-inset-bottom, 0px))",
         }}>
-        <ChatInput onSend={sendMessage} disabled={isLoading || !!autoFill || !!vehicleFill}
-          placeholder={mode === "comparison" ? "Réponds ou pose une question…" : "Pose une question sur ton contrat…"} />
+        <ChatInput onSend={sendMessage} disabled={isLoading || !!autoFill || !!vehicleFill || !!activeForm}
+          placeholder={
+            activeForm
+              ? "Remplis le formulaire ci-dessus pour recevoir ton estimation…"
+              : mode === "comparison"
+              ? "Réponds ou pose une question…"
+              : "Pose une question sur ton contrat…"
+          } />
         <p className="text-center text-[10px] mt-1.5 hidden sm:block" style={{ color: "#8090A8" }}>
           ELIA · HT Assurance · Nice ·{" "}
           <a href="tel:0986113257" className="hover:opacity-80 transition-opacity">09 86 11 32 57</a>
