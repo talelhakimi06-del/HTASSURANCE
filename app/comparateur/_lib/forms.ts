@@ -24,6 +24,9 @@ export type ProductForm = {
   title: string;
   subtitle: string;
   fields: FormField[];
+  /** Mots-clés (lowercase) déclenchant l'ouverture du formulaire si tapés
+      au clavier — recherche par inclusion, multi-mot accepté. */
+  keywords: string[];
 };
 
 /* Les labels DOIVENT correspondre aux quickReplies du greeting dans
@@ -35,6 +38,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🚗",
     title: "Assurance auto",
     subtitle: "Remplis tes infos en 1 minute, je te donne les fourchettes par assureur.",
+    keywords: ["auto", "voiture", "véhicule", "vehicule", "automobile", "car"],
     fields: [
       {
         name: "usage",
@@ -95,6 +99,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🏠",
     title: "Assurance habitation (MRH)",
     subtitle: "5 champs et je te donne les fourchettes par assureur.",
+    keywords: ["habitation", "maison", "appartement", "logement", "mrh", "multirisque habitation", "résidence", "residence", "locataire", "propriétaire", "proprietaire"],
     fields: [
       {
         name: "statut",
@@ -140,6 +145,7 @@ export const FORMS: ProductForm[] = [
     emoji: "💼",
     title: "RC Pro / Freelance",
     subtitle: "5 questions pour estimer ta RC Pro.",
+    keywords: ["rc pro", "rcpro", "responsabilité civile pro", "responsabilite civile pro", "freelance", "indépendant", "independant", "auto-entrepreneur", "auto entrepreneur", "micro-entreprise", "consultant"],
     fields: [
       {
         name: "activite",
@@ -185,6 +191,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🏗️",
     title: "Décennale BTP",
     subtitle: "5 questions pour estimer ta garantie décennale.",
+    keywords: ["décennale", "decennale", "btp", "artisan", "chantier", "construction", "maçon", "macon", "couvreur", "plombier", "électricien", "electricien", "charpentier", "bâtiment", "batiment"],
     fields: [
       {
         name: "siret",
@@ -230,6 +237,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🚙",
     title: "Assurance VTC",
     subtitle: "4 questions pour estimer ton contrat VTC.",
+    keywords: ["vtc", "uber", "bolt", "chauffeur privé", "chauffeur prive", "taxi", "transport personnes"],
     fields: [
       {
         name: "plateforme",
@@ -267,6 +275,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🏦",
     title: "Assurance emprunteur",
     subtitle: "6 questions pour estimer ton coût mensuel.",
+    keywords: ["emprunteur", "prêt", "pret", "crédit", "credit", "immobilier", "prêt immobilier", "pret immobilier", "crédit immo", "credit immo", "banque", "hypothèque", "hypotheque"],
     fields: [
       {
         name: "typePret",
@@ -318,6 +327,7 @@ export const FORMS: ProductForm[] = [
     emoji: "🛴",
     title: "Trottinette électrique (NVEI/EDPM)",
     subtitle: "L'assurance RC est OBLIGATOIRE depuis 2019 (amende 500 € à 3 750 € sinon).",
+    keywords: ["trottinette", "edpm", "nvei", "engin déplacement", "engin deplacement", "scooter électrique", "scooter electrique", "monoroue", "gyroroue", "hoverboard"],
     fields: [
       {
         name: "usage",
@@ -366,4 +376,48 @@ export const FORMS: ProductForm[] = [
 
 export function findFormByLabel(label: string): ProductForm | undefined {
   return FORMS.find((f) => f.label.toLowerCase() === label.toLowerCase());
+}
+
+/* Normalise un texte pour le matching tolérant :
+   - lowercase
+   - retire les accents
+   - collapse les espaces multiples
+   - trim */
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+/* Matching tolérant : retrouve un formulaire à partir d'un texte libre.
+   1. Match exact sur le label (priorité absolue)
+   2. Match par inclusion sur les keywords (tri par longueur de keyword
+      descendant — préfère le keyword le plus spécifique, p.ex. "rc pro"
+      avant "pro") */
+export function findFormFromText(text: string): ProductForm | undefined {
+  const norm = normalize(text);
+  if (!norm) return undefined;
+
+  // 1. Match exact label
+  const exact = FORMS.find((f) => normalize(f.label) === norm);
+  if (exact) return exact;
+
+  // 2. Match keyword le plus long d'abord
+  type Candidate = { form: ProductForm; keyword: string };
+  const candidates: Candidate[] = [];
+  for (const form of FORMS) {
+    for (const kw of form.keywords) {
+      const nkw = normalize(kw);
+      if (nkw && norm.includes(nkw)) {
+        candidates.push({ form, keyword: nkw });
+      }
+    }
+  }
+  if (candidates.length === 0) return undefined;
+
+  candidates.sort((a, b) => b.keyword.length - a.keyword.length);
+  return candidates[0].form;
 }

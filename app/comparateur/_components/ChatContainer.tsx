@@ -10,7 +10,7 @@ import TypingIndicator from "./TypingIndicator";
 import LeadFormModal from "./LeadFormModal";
 import ModeToggle from "./ModeToggle";
 import ProductFormCard from "./ProductForm";
-import { findFormByLabel, type ProductForm } from "../_lib/forms";
+import { findFormFromText, type ProductForm } from "../_lib/forms";
 
 const PHONE = "0986113257";
 const WHATSAPP = "https://wa.me/33986113257?text=Bonjour%2C%20je%20souhaite%20un%20devis%20assurance";
@@ -445,9 +445,10 @@ export default function ChatContainer() {
     }
 
     /* ⚡ Mode rapide — si le texte matche un produit avec formulaire dispo,
-       on ouvre le formulaire au lieu de relancer une conversation guidée. */
+       on ouvre le formulaire au lieu de relancer une conversation guidée.
+       Le matching est tolérant (lowercase + accents + keywords). */
     if (mode === "comparison" && currentPhase === "insurance_type") {
-      const form = findFormByLabel(text);
+      const form = findFormFromText(text);
       if (form) {
         const userMsg: Message = { id: genId(), role: "user", content: text, timestamp: new Date() };
         setMessages((prev) => [...prev, userMsg]);
