@@ -1,17 +1,35 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { ProductForm, FormField } from "../_lib/forms";
+import type { ProductForm } from "../_lib/forms";
 
 /* ─────────────────────────────────────────────────────────────────────
    Wizard interactif — affiche UNE question à la fois.
 
    - Pour les selects : cartes cliquables qui auto-avancent.
    - Pour les inputs text : champ + bouton "Suivant".
+   - Pour les inputs "plate" : fetch live de l'image+infos véhicule.
    - Aucun appel IA pendant le wizard (transitions instantanées).
    - À la dernière étape : "Calculer mon estimation" déclenche onSubmit()
      → le parent fait UN SEUL appel IA avec toutes les valeurs.
 ───────────────────────────────────────────────────────────────────── */
+
+const PLATE_RE = /\b([A-Za-z]{2}[-\s]?\d{3}[-\s]?[A-Za-z]{2}|\d{1,4}[A-Za-z]{2,3}\d{2})\b/i;
+
+type VehicleData = {
+  plate: string;
+  marque: string;
+  modele: string;
+  description: string;
+  annee: string;
+  carburant: string;
+  carrosserie: string;
+  puissance: string;
+  boite: string;
+  imageUrl: string;
+  resume: string;
+  contextIA: string;
+};
 
 export default function ProductFormCard({
   form,
@@ -29,23 +47,60 @@ export default function ProductFormCard({
     Object.fromEntries(form.fields.map((f) => [f.name, ""]))
   );
   const [touched, setTouched] = useState(false);
+
+  /* Cache des résultats de lookup plaque pour ne pas refetcher */
+  const [vehicleCache, setVehicleCache] = useState<Record<string, VehicleData | "loading" | "error">>({});
+  const fetchAbortRef = useRef<AbortController | null>(null);
+
   const total = form.fields.length;
   const field = form.fields[step];
   const isLast = step === total - 1;
   const inputRef = useRef<HTMLInputElement>(null);
 
-  /* Auto-focus de l'input text quand on arrive sur une question text */
   useEffect(() => {
-    if (field?.type !== "select" && inputRef.current) {
+    if ((field?.type === "text" || field?.type === "plate" || field?.type === "tel" || field?.type === "number") && inputRef.current) {
       const t = setTimeout(() => inputRef.current?.focus(), 50);
       return () => clearTimeout(t);
     }
   }, [step, field?.type]);
 
-  /* Reset touched à chaque changement de question */
   useEffect(() => {
     setTouched(false);
   }, [step]);
+
+  /* ── Lookup live de la plaque (debounce 600ms) ──────────────────── */
+  useEffect(() => {
+    if (field?.type !== "plate") return;
+    const raw = values[field.name] || "";
+    const match = raw.match(PLATE_RE);
+    if (!match) return;
+
+    const plaque = match[1].toUpperCase().replace(/[\s\-]/g, "");
+    if (vehicleCache[plaque]) return; // déjà fetched
+
+    const timer = setTimeout(() => {
+      fetchAbortRef.current?.abort();
+      const ctrl = new AbortController();
+      fetchAbortRef.current = ctrl;
+
+      setVehicleCache((c) => ({ ...c, [plaque]: "loading" }));
+
+      fetch(`/comparateur/api/immat?plaque=${encodeURIComponent(plaque)}`, { signal: ctrl.signal })
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.ok && json.data) {
+            setVehicleCache((c) => ({ ...c, [plaque]: json.data as VehicleData }));
+          } else {
+            setVehicleCache((c) => ({ ...c, [plaque]: "error" }));
+          }
+        })
+        .catch(() => {
+          setVehicleCache((c) => ({ ...c, [plaque]: "error" }));
+        });
+    }, 600);
+
+    return () => clearTimeout(timer);
+  }, [values, field, vehicleCache]);
 
   function selectOption(option: string) {
     const next = { ...values, [field.name]: option };
@@ -64,8 +119,27 @@ export default function ProductFormCard({
       inputRef.current?.focus();
       return;
     }
+
+    /* Si type plate et lookup réussi : on enrichit la valeur transmise
+       à l'IA avec les infos véhicule (marque, modèle, année) */
+    let finalValues = values;
+    if (field.type === "plate") {
+      const match = (value ?? "").match(PLATE_RE);
+      if (match) {
+        const plaque = match[1].toUpperCase().replace(/[\s\-]/g, "");
+        const data = vehicleCache[plaque];
+        if (data && typeof data === "object") {
+          finalValues = {
+            ...values,
+            [field.name]: `${plaque} — ${data.marque} ${data.modele} ${data.annee} ${data.carburant}`.trim(),
+          };
+        }
+      }
+    }
+
+    setValues(finalValues);
     if (isLast) {
-      onSubmit(values);
+      onSubmit(finalValues);
     } else {
       setStep(step + 1);
     }
@@ -82,12 +156,16 @@ export default function ProductFormCard({
   const isInvalid = touched && field.required && !values[field.name]?.trim();
   const progress = ((step + 1) / total) * 100;
 
+  /* Détection plaque pour rendu live */
+  const plateMatch = field.type === "plate" ? (values[field.name] || "").match(PLATE_RE) : null;
+  const plaqueClean = plateMatch ? plateMatch[1].toUpperCase().replace(/[\s\-]/g, "") : null;
+  const plateState = plaqueClean ? vehicleCache[plaqueClean] : undefined;
+
   return (
     <div
       style={{ background: "#0D2456", border: "1px solid #C9A84C" }}
       className="rounded-2xl p-5 mx-4 my-2 animate-fade-in"
     >
-      {/* Header — titre + progress */}
       <header className="mb-4">
         <div className="flex items-center justify-between gap-2">
           <p
@@ -100,32 +178,18 @@ export default function ProductFormCard({
             {step + 1} / {total}
           </span>
         </div>
-        {/* Progress bar */}
-        <div
-          style={{ background: "#1A3570" }}
-          className="h-1 rounded-full mt-2 overflow-hidden"
-        >
+        <div style={{ background: "#1A3570" }} className="h-1 rounded-full mt-2 overflow-hidden">
           <div
-            style={{
-              background: "#C9A84C",
-              width: `${progress}%`,
-              transition: "width 250ms ease",
-            }}
+            style={{ background: "#C9A84C", width: `${progress}%`, transition: "width 250ms ease" }}
             className="h-full rounded-full"
           />
         </div>
       </header>
 
-      {/* Question + champ */}
       <div key={step} className="space-y-3 animate-fade-in">
-        <p
-          style={{ color: "#e8edf5" }}
-          className="text-base font-semibold leading-snug"
-        >
+        <p style={{ color: "#e8edf5" }} className="text-base font-semibold leading-snug">
           {field.label}
-          {field.required && (
-            <span style={{ color: "#C9A84C" }} className="ml-1">*</span>
-          )}
+          {field.required && <span style={{ color: "#C9A84C" }} className="ml-1">*</span>}
         </p>
         {field.helper && (
           <p style={{ color: "#8090A8" }} className="text-xs leading-relaxed">
@@ -159,7 +223,7 @@ export default function ProductFormCard({
           <div>
             <input
               ref={inputRef}
-              type={field.type}
+              type={field.type === "plate" ? "text" : field.type}
               value={values[field.name] || ""}
               onChange={(e) =>
                 setValues((v) => ({ ...v, [field.name]: e.target.value }))
@@ -173,10 +237,12 @@ export default function ProductFormCard({
               placeholder={field.placeholder}
               pattern={field.pattern}
               disabled={loading}
+              autoCapitalize={field.type === "plate" ? "characters" : undefined}
               style={{
                 background: "#0D1B3E",
                 color: "#e8edf5",
                 border: `1px solid ${isInvalid ? "#D94F3D" : "#1A3570"}`,
+                textTransform: field.type === "plate" ? "uppercase" : undefined,
               }}
               className="w-full rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 disabled:opacity-60"
             />
@@ -185,12 +251,73 @@ export default function ProductFormCard({
                 Ce champ est obligatoire.
               </p>
             )}
+
+            {/* Preview véhicule en live (type plate) */}
+            {field.type === "plate" && plateState === "loading" && (
+              <div className="mt-3 flex items-center gap-2" style={{ color: "#C9A84C" }}>
+                <Spinner />
+                <span className="text-xs font-medium">Récupération des infos véhicule…</span>
+              </div>
+            )}
+            {field.type === "plate" && plateState === "error" && plaqueClean && (
+              <div className="mt-3 rounded-xl p-3" style={{ background: "#2A1A1A", border: "1px solid #D94F3D" }}>
+                <p style={{ color: "#FBA999" }} className="text-xs">
+                  Plaque <span className="font-mono">{plaqueClean}</span> introuvable.
+                  Tu peux continuer en tapant marque + modèle + année à la place.
+                </p>
+              </div>
+            )}
+            {field.type === "plate" && plateState && typeof plateState === "object" && (
+              <div
+                className="mt-3 rounded-xl p-3 animate-fade-in"
+                style={{ background: "#0D1B3E", border: "1px solid #C9A84C" }}
+              >
+                <div className="flex items-start gap-3">
+                  {plateState.imageUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={plateState.imageUrl}
+                      alt={`${plateState.marque} ${plateState.modele}`}
+                      className="w-24 h-16 object-cover rounded-lg flex-shrink-0"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p style={{ color: "#C9A84C" }} className="text-[10px] font-bold tracking-widest uppercase">
+                      🚗 Véhicule identifié
+                    </p>
+                    <p className="text-white font-bold text-sm leading-tight mt-0.5">
+                      {plateState.marque} {plateState.modele}
+                    </p>
+                    {plateState.annee && (
+                      <p style={{ color: "#8090A8" }} className="text-xs mt-0.5">
+                        {plateState.annee}
+                        {plateState.carburant ? ` · ${plateState.carburant}` : ""}
+                      </p>
+                    )}
+                    {plateState.carrosserie && (
+                      <p style={{ color: "#8090A8" }} className="text-[11px] mt-0.5">
+                        {plateState.carrosserie}
+                        {plateState.boite ? ` · ${plateState.boite}` : ""}
+                      </p>
+                    )}
+                    <p style={{ color: "#8090A8" }} className="text-[10px] mt-1 font-mono">
+                      {plateState.plate}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
 
-      {/* Footer — boutons */}
-      <div className="flex items-center justify-between gap-3 mt-5 pt-4" style={{ borderTop: "1px solid #1A3570" }}>
+      <div
+        className="flex items-center justify-between gap-3 mt-5 pt-4"
+        style={{ borderTop: "1px solid #1A3570" }}
+      >
         <button
           type="button"
           onClick={goBack}
@@ -205,7 +332,7 @@ export default function ProductFormCard({
           <button
             type="button"
             onClick={submitTextStep}
-            disabled={loading}
+            disabled={loading || plateState === "loading"}
             style={{ background: "#C9A84C", color: "#0D1B3E" }}
             className="px-5 py-2 rounded-xl text-sm font-bold hover:opacity-90 transition-opacity disabled:opacity-60 disabled:cursor-not-allowed flex items-center gap-2"
           >
@@ -222,12 +349,8 @@ export default function ProductFormCard({
         )}
       </div>
 
-      {/* Indicateur de fin si dernière question + select sans choix encore */}
       {isLast && field.type === "select" && !values[field.name] && (
-        <p
-          style={{ color: "#8090A8" }}
-          className="text-[11px] mt-3 text-center"
-        >
+        <p style={{ color: "#8090A8" }} className="text-[11px] mt-3 text-center">
           Dernière question — clique sur une option pour recevoir ton estimation
         </p>
       )}

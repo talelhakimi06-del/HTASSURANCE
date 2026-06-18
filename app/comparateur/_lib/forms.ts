@@ -4,7 +4,7 @@
    et fait UN SEUL appel IA à la soumission pour générer l'estimation.
 ───────────────────────────────────────────────────────────────────── */
 
-export type FieldType = "select" | "text" | "tel" | "number";
+export type FieldType = "select" | "text" | "tel" | "number" | "plate";
 
 export type FormField = {
   name: string;
@@ -58,9 +58,9 @@ export const FORMS: ProductForm[] = [
       {
         name: "vehicule",
         label: "Plaque OU marque + modèle + année",
-        type: "text",
+        type: "plate",
         placeholder: "AB-123-CD ou Peugeot 208 2022",
-        helper: "Si tu donnes la plaque, on récupère les infos automatiquement.",
+        helper: "Tape ta plaque : on récupère la photo et les infos automatiquement. Sinon, marque + modèle + année à la main.",
         required: true,
       },
       {
