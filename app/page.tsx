@@ -5,6 +5,7 @@ import GoogleMap from "./components/GoogleMap";
 import GoogleReviews from "./components/GoogleReviews";
 import GoogleRatingBadge from "./components/GoogleRatingBadge";
 import CookieManageButton from "./components/CookieManageButton";
+import Reveal from "./components/Reveal";
 
 const PLACE_ID_TRACHEL = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
 
@@ -310,25 +311,31 @@ export default async function Home() {
 
         <div className="relative max-w-6xl mx-auto px-6 py-28 w-full">
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-400/40 text-blue-300 text-xs font-semibold tracking-widest uppercase rounded-full px-4 py-1.5 mb-8">
-              <Icon d={ICONS.mapPin} className="w-3.5 h-3.5" />
-              Courtier indépendant · Nice, Côte d&apos;Azur
-            </span>
-
-            <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold text-white leading-[1.15] tracking-tight mb-7">
-              Le courtier qui vous accompagne vraiment,{" "}
-              <span className="text-blue-400">
-                surtout quand l&apos;assurance devient compliquée
+            <Reveal className="mb-8">
+              <span className="inline-flex items-center gap-2 bg-blue-600/20 border border-blue-400/40 text-blue-300 text-xs font-semibold tracking-widest uppercase rounded-full px-4 py-1.5">
+                <Icon d={ICONS.mapPin} className="w-3.5 h-3.5" />
+                Courtier indépendant · Nice, Côte d&apos;Azur
               </span>
-            </h1>
+            </Reveal>
 
-            <p className="text-lg text-slate-300 leading-relaxed mb-10 max-w-xl">
-              HT Assurance compare pour vous les meilleures compagnies, défend
-              vos intérêts et vous accompagne à chaque étape — pour les
-              particuliers et les professionnels, à Nice et partout en France.
-            </p>
+            <Reveal delay={0.08}>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.4rem] font-bold text-white leading-[1.12] tracking-tight mb-7">
+                Votre assurance, enfin claire — et un courtier qui{" "}
+                <span className="text-blue-400">
+                  défend vraiment vos intérêts
+                </span>
+              </h1>
+            </Reveal>
 
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+            <Reveal delay={0.16}>
+              <p className="text-lg text-slate-300 leading-relaxed mb-10 max-w-xl">
+                On compare les meilleures compagnies, on négocie à votre place et
+                on défend vos intérêts à chaque étape — particuliers et
+                professionnels, à Nice et partout en France.
+              </p>
+            </Reveal>
+
+            <Reveal as="div" delay={0.24} className="flex flex-col sm:flex-row flex-wrap gap-4">
               {/* CTA PRINCIPAL — audit gratuit (capture email) */}
               <a
                 href="#contact"
@@ -347,9 +354,9 @@ export default async function Home() {
                 </svg>
                 Essayer le comparateur IA
               </a>
-            </div>
+            </Reveal>
 
-            <div className="mt-10 flex items-center gap-3">
+            <Reveal as="div" delay={0.32} className="mt-10 flex items-center gap-3">
               <div className="flex -space-x-2">
                 {["bg-blue-400", "bg-blue-500", "bg-blue-600"].map((c, i) => (
                   <div
@@ -364,7 +371,7 @@ export default async function Home() {
                 <span className="text-white font-semibold">Particuliers & professionnels</span>{" "}
                 accompagnés à Nice et en France
               </p>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -389,7 +396,7 @@ export default async function Home() {
         {/* ══ SERVICES ════════════════════════════════════════════════ */}
         <section id="services" className="py-24 px-6 scroll-mt-20">
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
+            <Reveal as="div" className="text-center mb-14">
               <SectionLabel>Nos solutions</SectionLabel>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
                 Des assurances pensées pour vous
@@ -399,9 +406,9 @@ export default async function Home() {
                 besoins en comparant les offres de plusieurs compagnies — en toute
                 indépendance.
               </p>
-            </div>
+            </Reveal>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <Reveal as="div" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {services.map((service) => (
                 <div
                   key={service.title}
@@ -433,7 +440,7 @@ export default async function Home() {
                   </a>
                 </div>
               ))}
-            </div>
+            </Reveal>
           </div>
         </section>
 
@@ -443,7 +450,7 @@ export default async function Home() {
           className="py-24 px-6 bg-slate-900 scroll-mt-20"
         >
           <div className="max-w-6xl mx-auto">
-            <div className="text-center mb-14">
+            <Reveal as="div" className="text-center mb-14">
               <SectionLabel>Notre différence</SectionLabel>
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
                 Pourquoi choisir HT Assurance ?
@@ -453,9 +460,9 @@ export default async function Home() {
                 courtier, disponible, humain et capable de gérer les situations
                 les plus complexes.
               </p>
-            </div>
+            </Reveal>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
+            <Reveal as="div" className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-14">
               {whyItems.map((item) => (
                 <div
                   key={item.title}
@@ -470,7 +477,7 @@ export default async function Home() {
                   </p>
                 </div>
               ))}
-            </div>
+            </Reveal>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <a
