@@ -1,0 +1,266 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Comparateur Assurance ELIA",
+    "description": "Comparateur IA des meilleures assurances françaises par HT Assurance, courtier indépendant à Nice.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "https://www.htassurance.fr/api/gpt-comparateur" }
+  ],
+  "paths": {
+    "/compare-habitation": {
+      "post": {
+        "operationId": "compareHabitation",
+        "summary": "Compare les offres d'assurance habitation du marché français",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["statut", "surface", "ville"],
+                "properties": {
+                  "statut": { "type": "string", "enum": ["locataire", "proprietaire", "coproprio"] },
+                  "surface": { "type": "number", "description": "Surface en m²" },
+                  "ville": { "type": "string" },
+                  "code_postal": { "type": "string" },
+                  "valeur_mobilier": { "type": "number", "description": "Valeur estimée du mobilier en €" },
+                  "nb_pieces": { "type": "number" },
+                  "options": { "type": "array", "items": { "type": "string" }, "description": "Options souhaitées: vol, bris de glace, piscine, dépendances..." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparatif habitation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meilleure_offre": { "$ref": "#/components/schemas/Offre" },
+                    "comparatif": { "type": "array", "items": { "$ref": "#/components/schemas/OffreResume" } },
+                    "conseil_talel": { "type": "string" },
+                    "cta": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare-auto": {
+      "post": {
+        "operationId": "compareAuto",
+        "summary": "Compare les offres d'assurance auto du marché français",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["marque", "modele", "formule"],
+                "properties": {
+                  "marque": { "type": "string" },
+                  "modele": { "type": "string" },
+                  "annee": { "type": "number" },
+                  "usage": { "type": "string", "enum": ["perso", "pro", "mixte"] },
+                  "km_annuels": { "type": "number" },
+                  "bonus_malus": { "type": "number", "description": "Coefficient bonus-malus (0.50 à 3.50)" },
+                  "formule": { "type": "string", "enum": ["tiers", "intermediaire", "tous_risques"] },
+                  "profil_conducteur": { "type": "string", "description": "Ex: jeune conducteur, expérimenté, malussé..." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparatif auto",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meilleure_offre": { "$ref": "#/components/schemas/Offre" },
+                    "comparatif": { "type": "array", "items": { "$ref": "#/components/schemas/OffreResume" } },
+                    "economies_possibles": { "type": "number" },
+                    "conseil_talel": { "type": "string" },
+                    "cta": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/compare-sante": {
+      "post": {
+        "operationId": "compareSante",
+        "summary": "Compare les mutuelles santé du marché français",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["age", "situation"],
+                "properties": {
+                  "age": { "type": "number" },
+                  "situation": { "type": "string", "enum": ["celibataire", "couple", "famille"] },
+                  "nb_enfants": { "type": "number" },
+                  "besoins": { "type": "array", "items": { "type": "string" }, "description": "Besoins prioritaires: optique, dentaire, hospitalisation, médecines douces..." },
+                  "budget_mensuel": { "type": "number" },
+                  "regime": { "type": "string", "enum": ["general", "TNS", "agricole"] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Comparatif santé",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "meilleure_offre": { "$ref": "#/components/schemas/Offre" },
+                    "comparatif": { "type": "array", "items": { "$ref": "#/components/schemas/OffreResume" } },
+                    "remboursements_cles": {
+                      "type": "object",
+                      "properties": {
+                        "optique": { "type": "string" },
+                        "dentaire": { "type": "string" },
+                        "hospitalisation": { "type": "string" }
+                      }
+                    },
+                    "conseil_talel": { "type": "string" },
+                    "cta": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/get-quote": {
+      "post": {
+        "operationId": "getQuote",
+        "summary": "Génère un devis personnalisé et alerte le courtier HT Assurance",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["type_assurance", "prenom", "email", "telephone"],
+                "properties": {
+                  "type_assurance": { "type": "string" },
+                  "prenom": { "type": "string" },
+                  "email": { "type": "string", "format": "email" },
+                  "telephone": { "type": "string" },
+                  "donnees_profil": { "type": "object", "description": "Données du profil collectées pendant la conversation" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Devis généré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "devis_id": { "type": "string" },
+                    "resume": { "type": "string" },
+                    "prochaine_etape": { "type": "string" },
+                    "cta": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/explain-insurance": {
+      "post": {
+        "operationId": "explainInsurance",
+        "summary": "Explique un concept d'assurance en langage clair avec exemple concret",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["question"],
+                "properties": {
+                  "question": { "type": "string", "description": "La question sur l'assurance à expliquer" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Explication claire",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "explication": { "type": "string" },
+                    "exemple_concret": { "type": "string" },
+                    "conseil": { "type": "string" },
+                    "cta": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Offre": {
+        "type": "object",
+        "properties": {
+          "assureur": { "type": "string" },
+          "prix_mensuel": { "type": "number" },
+          "prix_annuel": { "type": "number" },
+          "points_forts": { "type": "array", "items": { "type": "string" } },
+          "garanties": { "type": "array", "items": { "type": "string" } }
+        }
+      },
+      "OffreResume": {
+        "type": "object",
+        "properties": {
+          "assureur": { "type": "string" },
+          "prix_mensuel": { "type": "number" },
+          "note": { "type": "number" },
+          "ideal_pour": { "type": "string" }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "security": [
+    { "BearerAuth": [] }
+  ]
+}
