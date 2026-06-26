@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.htassurance.fr"),
   verification: {
     google: "3S6h4AdZUMAQBNUTbaQog2xA_HBpmmPw0FSkAaGlqYA",
   },
@@ -31,8 +32,16 @@ export const metadata: Metadata = {
     title: "HT Assurance — Courtier indépendant à Nice",
     description:
       "Un vrai courtier indépendant qui compare les meilleures assurances pour vous. Audit gratuit, accompagnement personnalisé, dossiers complexes acceptés.",
+    url: "https://www.htassurance.fr",
+    siteName: "HT Assurance",
     locale: "fr_FR",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HT Assurance — Courtier indépendant à Nice",
+    description:
+      "Un vrai courtier indépendant qui compare les meilleures assurances pour vous. Audit gratuit, dossiers complexes acceptés.",
   },
 };
 
@@ -78,6 +87,7 @@ export default function RootLayout({
                   priceRange: "Gratuit",
                   address: {
                     "@type": "PostalAddress",
+                    streetAddress: "25 rue Trachel",
                     addressLocality: "Nice",
                     addressRegion: "Alpes-Maritimes",
                     postalCode: "06000",
