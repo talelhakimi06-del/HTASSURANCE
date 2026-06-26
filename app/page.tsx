@@ -227,8 +227,18 @@ export default async function Home() {
       {/* ══ NAVBAR ══════════════════════════════════════════════════════ */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/70 shadow-sm">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="#" className="text-lg font-bold text-slate-900 tracking-tight">
-            HT<span className="text-blue-600"> Assurance</span>
+          <a href="#" className="flex items-center gap-2.5">
+            <Image
+              src="/logo-mark-dark.png"
+              alt="Logo HT Assurance"
+              width={50}
+              height={32}
+              className="h-8 w-auto"
+              priority
+            />
+            <span className="text-lg font-bold text-slate-900 tracking-tight">
+              HT<span className="text-blue-600"> Assurance</span>
+            </span>
           </a>
 
           <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
@@ -728,9 +738,18 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-3 gap-10 pb-10 border-b border-slate-800">
             <div>
-              <p className="text-white font-bold text-lg mb-3">
-                HT<span className="text-blue-400"> Assurance</span>
-              </p>
+              <div className="flex items-center gap-2.5 mb-3">
+                <Image
+                  src="/logo-mark-white.png"
+                  alt="Logo HT Assurance"
+                  width={50}
+                  height={32}
+                  className="h-8 w-auto"
+                />
+                <span className="text-white font-bold text-lg">
+                  HT<span className="text-blue-400"> Assurance</span>
+                </span>
+              </div>
               <p className="text-sm leading-relaxed mb-4">
                 Courtier en assurance indépendant à Nice. Nous comparons, conseillons et défendons vos intérêts.
               </p>
