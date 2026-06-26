@@ -229,7 +229,7 @@ export default async function Home() {
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
           <a href="#" className="flex items-center gap-2.5">
             <Image
-              src="/logo-mark-dark.png"
+              src="/logo-ht-noir.png"
               alt="Logo HT Assurance"
               width={50}
               height={32}
