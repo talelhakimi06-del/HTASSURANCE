@@ -1,13 +1,25 @@
 {
   "functions": {
-    "app/comparateur/api/chat/route.ts": {
-      "maxDuration": 30
-    },
-    "app/comparateur/api/lead/route.ts": {
-      "maxDuration": 15
-    },
-    "app/comparateur/api/siret/route.ts": {
-      "maxDuration": 15
-    }
-  }
+    "app/comparateur/api/chat/route.ts": { "maxDuration": 30 },
+    "app/comparateur/api/lead/route.ts": { "maxDuration": 15 },
+    "app/comparateur/api/siret/route.ts": { "maxDuration": 15 },
+    "app/api/agents/qualify/route.ts": { "maxDuration": 30 },
+    "app/api/agents/email-responder/route.ts": { "maxDuration": 30 },
+    "app/api/agents/seo-autopilot/route.ts": { "maxDuration": 60 },
+    "app/api/agents/catnat-watch/route.ts": { "maxDuration": 30 },
+    "app/api/agents/dev-audit/route.ts": { "maxDuration": 30 },
+    "app/api/agents/orchestrator/route.ts": { "maxDuration": 30 },
+    "app/api/agents/backlink-builder/route.ts": { "maxDuration": 60 },
+    "app/api/agents/review-responder/route.ts": { "maxDuration": 60 }
+  },
+  "crons": [
+    { "path": "/api/agents/review-responder", "schedule": "0 11 * * *" },
+    { "path": "/api/agents/dev-audit", "schedule": "0 5 * * *" },
+    { "path": "/api/agents/catnat-watch", "schedule": "0 6 * * *" },
+    { "path": "/api/agents/seo-autopilot", "schedule": "0 7 * * *" },
+    { "path": "/api/agents/email-responder", "schedule": "0 9 * * *" },
+    { "path": "/api/agents/orchestrator", "schedule": "30 8 * * *" },
+    { "path": "/api/agents/orchestrator?mode=learn", "schedule": "0 18 * * 5" },
+    { "path": "/api/agents/backlink-builder?tier=all", "schedule": "0 10 * * *" }
+  ]
 }
