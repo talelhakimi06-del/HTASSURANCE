@@ -58,6 +58,8 @@ export default async function ({ page, context }) {
 
   try {
     await page.setViewport({ width: 1280, height: 900 });
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+    await page.setExtraHTTPHeaders({ "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8" });
     await page.goto(config.url, { waitUntil: "domcontentloaded", timeout: 20000 });
     await page.waitForSelector("input,select,textarea", { timeout: 6000 }).catch(() => {});
     await new Promise(r => setTimeout(r, 1200));
@@ -199,6 +201,8 @@ const RECON_FN = `
 export default async function ({ page, context }) {
   const out = { ok:false, url:context.url, cloudflare:false, captcha:"none", sitekey:null, fields:[], submits:[], message:"" };
   try {
+    await page.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36");
+    await page.setExtraHTTPHeaders({ "Accept-Language": "fr-FR,fr;q=0.9,en;q=0.8" });
     await page.goto(context.url, { waitUntil: "domcontentloaded", timeout: 22000 });
     // attendre que les champs (souvent rendus en JS) apparaissent
     await page.waitForSelector("input:not([type=hidden]),select,textarea", { timeout: 7000 }).catch(() => {});
