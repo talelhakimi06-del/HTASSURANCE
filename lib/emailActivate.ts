@@ -46,7 +46,13 @@ function extractBody(payload: Record<string, unknown> | undefined): string {
 const ACTIVATION_RE = /(activate|activation|confirm|confirmer|verify|verif|validation|valider|valid[ae]|account[-_/]?confirm|email[-_/]?confirm|token=)/i;
 const EXCLUDE_RE = /(unsubscribe|optout|opt-out|desabon|désabon|preferences|notification-settings|mailto:)/i;
 
-function extractActivationLinks(html: string): string[] {
+function hostOf(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, "").toLowerCase(); } catch { return ""; }
+}
+
+// SÉCURITÉ : on ne suit QUE des liens vers les domaines d'annuaires autorisés
+// (jamais les emails personnels/bancaires de la boîte).
+function extractActivationLinks(html: string, allowed: Set<string>): string[] {
   const links = new Set<string>();
   const re = /href\s*=\s*["']([^"']+)["']/gi;
   let m: RegExpExecArray | null;
@@ -54,7 +60,10 @@ function extractActivationLinks(html: string): string[] {
     const url = m[1].replace(/&amp;/g, "&");
     if (!/^https?:\/\//i.test(url)) continue;
     if (EXCLUDE_RE.test(url)) continue;
-    if (/(google\.com|gstatic|googleusercontent|youtube|facebook|twitter|linkedin|instagram)/i.test(url)) continue;
+    const host = hostOf(url);
+    // le host (ou son domaine parent) doit être dans la liste blanche des annuaires
+    const ok = [...allowed].some((d) => host === d || host.endsWith("." + d));
+    if (!ok) continue;
     if (ACTIVATION_RE.test(url)) links.add(url);
   }
   return [...links].slice(0, 5);
@@ -68,7 +77,9 @@ export type ActivateReport = {
   note?: string;
 };
 
-export async function scanAndActivate(): Promise<ActivateReport> {
+export async function scanAndActivate(allowedDomains: string[]): Promise<ActivateReport> {
+  const allowed = new Set((allowedDomains ?? []).map((d) => d.replace(/^www\./, "").toLowerCase()).filter(Boolean));
+  if (allowed.size === 0) return { ok: false, mode: "off", scanned: 0, activated: [], note: "aucun domaine autorisé" };
   const token = await getGmailToken();
   if (!token) return { ok: false, mode: "off", scanned: 0, activated: [], note: "Gmail non configuré" };
 
@@ -98,7 +109,7 @@ export async function scanAndActivate(): Promise<ActivateReport> {
       if (/htassurance|elia|noreply@.*google/i.test(from) && !/activate|confirm|verify/i.test(subject)) continue;
 
       const html = extractBody(full.payload);
-      const links = extractActivationLinks(html);
+      const links = extractActivationLinks(html, allowed);
       if (!links.length) continue;
 
       // tente le(s) lien(s) d'activation

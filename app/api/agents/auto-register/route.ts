@@ -154,9 +154,12 @@ export async function GET(req: NextRequest) {
     if (!isVercel && auth !== `Bearer ${cronSecret}`) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
+  // Domaines d'annuaires autorisés pour l'activation (jamais les emails perso)
+  const allowedDomains = WHITELIST.map((w) => { try { return new URL(w.url).hostname.replace(/^www\./, ""); } catch { return ""; } }).filter(Boolean);
+
   // Mode activation : scanne Gmail et ouvre les liens d'activation des inscriptions
   if (req.nextUrl.searchParams.get("mode") === "activate") {
-    const rep = await scanAndActivate();
+    const rep = await scanAndActivate(allowedDomains);
     const okN = rep.activated.filter((a) => a.status >= 200 && a.status < 400).length;
     await notify(
       `📧 Activation emails — ${rep.scanned} mail(s) scanné(s) · ${okN} lien(s) activé(s)\n` +
@@ -242,7 +245,8 @@ export async function GET(req: NextRequest) {
   // Activation automatique des emails de confirmation reçus pendant le run
   let activation: Awaited<ReturnType<typeof scanAndActivate>> | null = null;
   if (mode === "directory" && !forceUrl) {
-    try { activation = await scanAndActivate(); } catch { /* best effort */ }
+    const runDomains = [...allowedDomains, ...targets.map((t) => { try { return new URL(t.url).hostname.replace(/^www\./, ""); } catch { return ""; } })].filter(Boolean);
+    try { activation = await scanAndActivate([...new Set(runDomains)]); } catch { /* best effort */ }
   }
 
   const okCount = results.filter((r) => String(r.status).startsWith("✅")).length;
