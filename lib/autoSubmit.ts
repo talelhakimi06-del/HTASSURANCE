@@ -48,6 +48,9 @@ export type SubmitOutcome = {
 };
 
 const BROWSERLESS_FUNCTION_URL = "https://chrome.browserless.io/function";
+// Proxy résidentiel (IP française) pour contourner le filtrage anti-bot par IP
+// des annuaires. Désactivable via BROWSERLESS_PROXY=0 (économie de bande passante).
+const PROXY_QS = process.env.BROWSERLESS_PROXY === "0" ? "" : "&proxy=residential&proxyCountry=fr";
 
 /* Script exécuté DANS le Chrome distant (Browserless /function).
    Reçoit `context` = { config, capsolverKey }. Tout doit être inline. */
@@ -240,11 +243,11 @@ export async function reconForm(url: string): Promise<FormMap> {
   const token = process.env.BROWSERLESS_TOKEN;
   if (!token) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: "BROWSERLESS_TOKEN manquant" };
   try {
-    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=30000`, {
+    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=45000${PROXY_QS}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: RECON_FN, context: { url } }),
-      signal: AbortSignal.timeout(38000),
+      signal: AbortSignal.timeout(52000),
     });
     if (!res.ok) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: `Browserless HTTP ${res.status}` };
     const data = await res.json();
@@ -264,7 +267,7 @@ export async function autoSubmitForm(config: SubmitConfig): Promise<SubmitOutcom
   }
 
   try {
-    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=60000`, {
+    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=60000${PROXY_QS}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
