@@ -28,6 +28,47 @@ const WHATSAPP_MESSAGE = encodeURIComponent(
 const WHATSAPP_HREF = `https://wa.me/${WHATSAPP_NUMBER}?text=${WHATSAPP_MESSAGE}`;
 
 /* ─────────────────────────────────────────────────────────────────────────
+   FAQ — questions/réponses riches en mots-clés.
+   Alimente le SEO classique, le balisage FAQPage (schema.org) et les
+   réponses IA de Google (« Ask Maps ») qui puisent dans le site.
+───────────────────────────────────────────────────────────────────────── */
+
+const HOME_FAQ: { q: string; a: string }[] = [
+  {
+    q: "HT Assurance est-il un courtier en assurances indépendant ?",
+    a: "Oui. HT Assurance est un cabinet de courtage en assurances indépendant basé à Nice (25 rue Trachel). Nous ne sommes liés à aucune compagnie : nous comparons et négocions pour vous parmi de nombreux assureurs afin de trouver le meilleur contrat au meilleur prix.",
+  },
+  {
+    q: "Le devis et l'audit de mes contrats sont-ils gratuits ?",
+    a: "Oui, l'étude de vos besoins, l'audit de vos contrats existants et le devis sont entièrement gratuits et sans engagement. Appelez-nous au 09 86 11 32 57 ou demandez à être rappelé.",
+  },
+  {
+    q: "Assurez-vous les conducteurs résiliés, malussés ou jeunes permis ?",
+    a: "Oui, c'est l'une de nos spécialités. Nous trouvons une assurance auto pour les profils résiliés (non-paiement ou sinistres), les conducteurs avec malus, après suspension ou annulation de permis, ainsi que pour les jeunes conducteurs.",
+  },
+  {
+    q: "Proposez-vous l'assurance emprunteur pour un prêt immobilier ?",
+    a: "Oui. Nous négocions votre assurance de prêt immobilier (assurance emprunteur) pour réduire le coût total de votre crédit, tout en respectant les garanties exigées par votre banque. Le changement d'assurance de prêt est possible à tout moment grâce à la loi Lemoine.",
+  },
+  {
+    q: "Quels types d'assurances proposez-vous ?",
+    a: "Auto (y compris résilié et malus), moto, scooter et trottinette, habitation, complémentaire santé et mutuelle, assurance emprunteur, assurance décennale, responsabilité civile professionnelle, ainsi que les assurances des professionnels et des entreprises.",
+  },
+  {
+    q: "Mon sinistre a été refusé par mon assurance, pouvez-vous m'aider ?",
+    a: "Oui. Nous accompagnons les assurés dont le sinistre a été refusé ou mal indemnisé (auto, habitation, dégât des eaux, catastrophe naturelle…). Nous analysons gratuitement le motif de refus et vous aidons à le contester. Consultez aussi notre page « Sinistres refusés ».",
+  },
+  {
+    q: "Dans quelles villes intervenez-vous ?",
+    a: "Notre cabinet est implanté à Nice (25 rue Trachel et 1 avenue de Suède), avec des agences à Cannes et Cagnes-sur-Mer. Nous intervenons sur toute la Côte d'Azur (Antibes, Monaco, PACA) et partout en France en visioconférence.",
+  },
+  {
+    q: "Quels sont vos horaires et comment vous joindre ?",
+    a: "Nous sommes joignables du lundi au samedi, de 10h à 19h, au 09 86 11 32 57, sur WhatsApp ou via le formulaire de contact. Un conseiller vous répond sous 24 h.",
+  },
+];
+
+/* ─────────────────────────────────────────────────────────────────────────
    ICONS — inline SVG, aucune dépendance externe
 ───────────────────────────────────────────────────────────────────────── */
 
@@ -57,6 +98,7 @@ function Icon({
 }
 
 const ICONS = {
+  chevronDown: "M19.5 8.25l-7.5 7.5-7.5-7.5",
   hardhat:
     "M2.25 12.75V12A2.25 2.25 0 014.5 9.75h15A2.25 2.25 0 0121.75 12v.75m-8.69-6.44l-2.12-2.12a1.5 1.5 0 00-1.061-.44H4.5A2.25 2.25 0 002.25 6v12a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9a2.25 2.25 0 00-2.25-2.25h-5.379a1.5 1.5 0 01-1.06-.44z",
   key: "M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z",
@@ -246,6 +288,7 @@ export default async function Home() {
             <a href="#services" className="hover:text-slate-900 transition-colors">Services</a>
             <a href="#pourquoi" className="hover:text-slate-900 transition-colors">Pourquoi nous</a>
             <a href="#zone" className="hover:text-slate-900 transition-colors">Zone d&apos;intervention</a>
+            <a href="#faq" className="hover:text-slate-900 transition-colors">FAQ</a>
             <a href="/sinistres" className="hover:text-slate-900 transition-colors">Sinistres refusés</a>
             <a href="/blog" className="hover:text-slate-900 transition-colors">Blog</a>
             <a
@@ -617,6 +660,57 @@ export default async function Home() {
                   Prendre rendez-vous
                 </a>
               </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ══ FAQ ══════════════════════════════════════════════════════ */}
+        <section id="faq" className="py-24 px-6 bg-white scroll-mt-20">
+          {/* Balisage FAQPage (schema.org) — rich results + réponses IA Google */}
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: HOME_FAQ.map((f) => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              }),
+            }}
+          />
+          <div className="max-w-3xl mx-auto">
+            <div className="text-center mb-12">
+              <SectionLabel>Questions fréquentes</SectionLabel>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+                Vos questions sur votre courtier à Nice
+              </h2>
+              <p className="text-slate-500 max-w-xl mx-auto">
+                Assurance auto résilié, emprunteur, sinistre refusé… Les réponses
+                aux questions les plus posées à HT Assurance.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              {HOME_FAQ.map((f) => (
+                <details
+                  key={f.q}
+                  className="group rounded-xl border border-slate-200 bg-slate-50/60 px-5 py-4 [&_summary]:list-none open:bg-white open:shadow-sm transition-colors"
+                >
+                  <summary className="flex cursor-pointer items-center justify-between gap-4 font-semibold text-slate-900">
+                    {f.q}
+                    <Icon
+                      d={ICONS.chevronDown}
+                      className="w-5 h-5 flex-shrink-0 text-blue-600 transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <p className="mt-3 text-slate-600 leading-relaxed text-sm">
+                    {f.a}
+                  </p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
