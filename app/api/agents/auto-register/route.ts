@@ -37,6 +37,41 @@ const NAP = {
   desc: "Courtier en assurance indépendant à Nice. Spécialiste de la contestation des refus de sinistre, optimisation de contrats, assurance emprunteur, RC pro, décennale et VTC. Particuliers et professionnels. Tél/WhatsApp 09 86 11 32 57.",
 };
 
+/* Liste blanche d'annuaires à inscription ouverte (URLs réelles, pas
+   d'hallucination). Beaucoup sont en reCAPTCHA → l'agent les gère.
+   Certains seront gated (login/Cloudflare) → recon les skip vite.
+   L'agent avance dans la liste run après run (dédup KV). */
+const WHITELIST: { name: string; url: string }[] = [
+  { name: "Tupalo", url: "https://tupalo.com/fr/users/sign_up" },
+  { name: "Brownbook", url: "https://www.brownbook.net/account/signup/" },
+  { name: "CallUpContact", url: "https://www.callupcontact.com/Business_Time_Registration" },
+  { name: "2FindLocal", url: "https://www.2findlocal.com/add-business" },
+  { name: "Fyple", url: "https://www.fyple.fr/add-business/" },
+  { name: "EnrollBusiness", url: "https://www.enrollbusiness.com/Login/SignUp" },
+  { name: "iGlobal", url: "https://www.iglobal.co/sign-up" },
+  { name: "Cybo", url: "https://www.cybo.com/add-business/" },
+  { name: "ExpressBusinessDirectory", url: "https://www.expressbusinessdirectory.com/AddCompany" },
+  { name: "FindUsHere", url: "https://www.find-us-here.com/signup.aspx" },
+  { name: "Hotfrog FR", url: "https://www.hotfrog.fr/ajouter-une-entreprise" },
+  { name: "Yalwa FR", url: "https://www.yalwa.fr/services/ajouter-une-entreprise.html" },
+  { name: "Opendi FR", url: "https://www.opendi.fr/addbiz/" },
+  { name: "Misterwhat FR", url: "https://www.misterwhat.fr/company/add" },
+  { name: "Nicelocal FR", url: "https://nicelocal.fr/add-company" },
+  { name: "Where-To FR", url: "https://www.where-to.fr/" },
+  { name: "Bizzduniya", url: "https://www.bizzduniya.com/register" },
+  { name: "AdsCT", url: "https://www.adsct.com/" },
+  { name: "Lacartes", url: "https://www.lacartes.com/business/add" },
+  { name: "Pingmybiz", url: "https://www.pingmybiz.com/" },
+  { name: "Wand (hub.biz)", url: "https://hub.biz/add" },
+  { name: "Cataloxy FR", url: "https://www.cataloxy.fr/add_firm.htm" },
+  { name: "Infoisinfo FR", url: "https://www.infoisinfo.fr/new/company" },
+  { name: "TodoFr (Tuugo)", url: "https://www.tuugo.fr/AddYourBusiness" },
+  { name: "GoMyLocal", url: "https://www.gomylocal.com/business/listing/" },
+  { name: "ShowMeLocal", url: "https://www.showmelocal.com/addbusiness.aspx" },
+  { name: "Bizidex", url: "https://www.bizidex.com/en/register" },
+  { name: "AdLocal", url: "https://adlocalpages.com/" },
+];
+
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 
 async function callClaude(apiKey: string, system: string, user: string, maxTokens = 1024): Promise<string> {
@@ -124,7 +159,10 @@ export async function GET(req: NextRequest) {
 
   const mode = (req.nextUrl.searchParams.get("mode") === "article" ? "article" : "directory") as "directory" | "article";
   const forceUrl = req.nextUrl.searchParams.get("url");
-  const max = parseInt(req.nextUrl.searchParams.get("max") || "4");
+  const max = parseInt(req.nextUrl.searchParams.get("max") || "30");
+  const retry = req.nextUrl.searchParams.get("retry") === "1";
+  const startTime = Date.now();
+  const TIME_BUDGET_MS = 250000; // ~250s, sous la limite maxDuration 300s
 
   // Données à injecter selon le mode
   let payload: object = NAP;
@@ -138,31 +176,53 @@ export async function GET(req: NextRequest) {
     rules = "Mappe le TITRE sur le champ titre/sujet, le CONTENU (long) sur la zone de texte principale (textarea), le résumé/extrait si présent, l'auteur, l'email, le site web. Le contenu contient déjà le lien vers le site.";
   }
 
-  // Cibles
+  // Cibles : forcée, sinon (annuaire) liste blanche + découverte Claude dédupées, (article) découverte
   let targets: { name: string; url: string }[];
-  if (forceUrl) targets = [{ name: forceUrl, url: forceUrl }];
-  else { try { targets = await discover(apiKey, mode); } catch (e) { return NextResponse.json({ error: `discovery: ${e instanceof Error ? e.message : e}` }, { status: 500 }); } }
+  if (forceUrl) {
+    targets = [{ name: forceUrl, url: forceUrl }];
+  } else {
+    let discovered: { name: string; url: string }[] = [];
+    try { discovered = await discover(apiKey, mode); } catch { /* la liste blanche suffit */ }
+    const base = mode === "directory" ? [...WHITELIST, ...discovered] : discovered;
+    const seen = new Set<string>();
+    targets = base.filter((t) => t.url && !seen.has(t.url) && (seen.add(t.url), true));
+  }
 
   const results: Record<string, unknown>[] = [];
   let processed = 0;
+  let stoppedForTime = false;
 
   for (const t of targets) {
     if (processed >= max) break;
+    if (Date.now() - startTime > TIME_BUDGET_MS) { stoppedForTime = true; break; }
+
     const key = `autoreg:${mode}:${t.url}`.slice(0, 120);
-    if (!forceUrl && (await getAgentFlag(key)) === "ok") { results.push({ name: t.name, url: t.url, status: "déjà fait (skip)" }); continue; }
+    if (!forceUrl) {
+      const flag = await getAgentFlag(key);
+      if (flag === "ok") { continue; }            // déjà inscrit → silencieux
+      if (flag === "skip" && !retry) { continue; } // déjà jugé inexploitable → on avance
+    }
     processed++;
 
     const form = await reconForm(t.url);
-    if (!form.ok) { results.push({ name: t.name, url: t.url, status: "skip", reason: form.message, captcha: form.captcha }); continue; }
+    if (!form.ok) {
+      await setAgentFlag(key, "skip"); // ne pas re-tenter à chaque run (sauf ?retry=1)
+      results.push({ name: t.name, url: t.url, status: "skip", reason: form.message, captcha: form.captcha });
+      continue;
+    }
 
     let plan;
     try { plan = await planFill(apiKey, form, payload, rules); }
     catch (e) { results.push({ name: t.name, url: t.url, status: "erreur plan", reason: String(e) }); continue; }
-    if (!plan.fields?.length || !plan.submitSelector) { results.push({ name: t.name, url: t.url, status: "plan vide", note: plan.note }); continue; }
+    if (!plan.fields?.length || !plan.submitSelector) {
+      await setAgentFlag(key, "skip");
+      results.push({ name: t.name, url: t.url, status: "plan vide", note: plan.note });
+      continue;
+    }
 
     const config: SubmitConfig = { name: t.name, url: t.url, fields: plan.fields, submitSelector: plan.submitSelector, captcha: form.captcha };
     const out: SubmitOutcome = await autoSubmitForm(config);
-    if (out.ok) await setAgentFlag(key, "ok");
+    await setAgentFlag(key, out.ok ? "ok" : "skip");
     results.push({ name: t.name, url: t.url, status: out.ok ? "✅ soumis" : "❌ échec", captchaSolved: out.captchaSolved, captcha: form.captcha, message: out.message, finalUrl: out.finalUrl });
   }
 
@@ -170,7 +230,7 @@ export async function GET(req: NextRequest) {
   const solved = results.filter((r) => r.captchaSolved).length;
 
   const report = `🤖 Auto-register autonome — mode ${mode}
-${mode === "article" && article ? `📝 Article : « ${article.title} » (lien → ${SITE})\n` : ""}🎯 ${targets.length} cibles découvertes · ${processed} traitées
+${mode === "article" && article ? `📝 Article : « ${article.title} » (lien → ${SITE})\n` : ""}🎯 ${targets.length} cibles · ${processed} traitées${stoppedForTime ? " (arrêt budget temps — reprise au prochain run)" : ""}
 ✅ ${okCount} soumis · 🔓 ${solved} captcha(s) résolu(s)
 
 ${results.map((r) => `${r.status} — ${r.name}${r.captcha && r.captcha !== "none" ? ` [${r.captcha}${r.captchaSolved ? "✓" : ""}]` : ""}\n   ${r.message || r.reason || r.note || ""}`).join("\n")}`;

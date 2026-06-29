@@ -198,8 +198,8 @@ const RECON_FN = `
 export default async function ({ page, context }) {
   const out = { ok:false, url:context.url, cloudflare:false, captcha:"none", sitekey:null, fields:[], submits:[], message:"" };
   try {
-    await page.goto(context.url, { waitUntil: "domcontentloaded", timeout: 35000 });
-    await new Promise(r => setTimeout(r, 1500));
+    await page.goto(context.url, { waitUntil: "domcontentloaded", timeout: 22000 });
+    await new Promise(r => setTimeout(r, 1000));
     const d = await page.evaluate(() => {
       const labelFor = (el) => {
         if (el.id) { const l = document.querySelector('label[for="'+el.id+'"]'); if (l) return l.innerText.trim().slice(0,60); }
@@ -233,11 +233,11 @@ export async function reconForm(url: string): Promise<FormMap> {
   const token = process.env.BROWSERLESS_TOKEN;
   if (!token) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: "BROWSERLESS_TOKEN manquant" };
   try {
-    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=50000`, {
+    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=30000`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: RECON_FN, context: { url } }),
-      signal: AbortSignal.timeout(60000),
+      signal: AbortSignal.timeout(38000),
     });
     if (!res.ok) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: `Browserless HTTP ${res.status}` };
     const data = await res.json();
