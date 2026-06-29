@@ -15,6 +15,14 @@ const SITE_NAME = "HT Assurance";
 const SITE_DESC = "Courtier indépendant à Nice. Expert sinistres refusés, assurance décennale, VTC, RC Pro. Audit gratuit.";
 const INDEXNOW_KEY = "htassurance2026indexnow";
 
+/* NAP (Name/Address/Phone) — à coller À L'IDENTIQUE sur chaque annuaire
+   (la cohérence NAP est LE facteur clé du référencement local) */
+const NAP = `${SITE_NAME}
+25 rue Trachel, 06000 Nice
+09 86 11 32 57
+${SITE_URL}
+${SITE_DESC}`;
+
 const ALL_URLS = [
   `${SITE_URL}`,
   `${SITE_URL}/sinistres`,
@@ -316,6 +324,14 @@ async function submitTier5(): Promise<SubmitResult[]> {
     { name: "AnnuaireProfessionnels.fr", url: "https://annuaireprofessionnels.fr", key: "annuairepro" },
     { name: "Gralon Annuaire", url: "https://www.gralon.net", key: "gralon" },
     { name: "Yelp France", url: "https://www.yelp.fr", key: "yelp" },
+    { name: "Cylex France", url: "https://www.cylex-france.fr", key: "cylex" },
+    { name: "118712.fr", url: "https://www.118712.fr", key: "118712" },
+    { name: "Justacôté", url: "https://www.justacote.com", key: "justacote" },
+    { name: "Foursquare", url: "https://foursquare.com", key: "foursquare" },
+    { name: "Bing Places", url: "https://www.bingplaces.com", key: "bingplaces" },
+    { name: "Apple Business Connect", url: "https://businessconnect.apple.com", key: "applebusiness" },
+    { name: "Tuugo France", url: "https://www.tuugo.fr", key: "tuugo" },
+    { name: "Misterwhat", url: "https://www.misterwhat.fr", key: "misterwhat" },
   ];
 
   const batches = chunkArray(sites, 3);
@@ -393,7 +409,7 @@ export async function GET(req: NextRequest) {
     const auth = req.headers.get("authorization");
     const isVercel = !!req.headers.get("x-vercel-cron");
     if (!isVercel && auth !== `Bearer ${cronSecret}`) {
-      // Allow unauthenticated for admin button
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
   }
 
@@ -452,18 +468,27 @@ export async function GET(req: NextRequest) {
     results: allResults,
   }));
 
-  // Final notification
+  // Final notification — checklist actionnable
+  const manualList = allResults
+    .filter((r) => r.status === "manual")
+    .map((r) => `  📋 ${r.site} — ${r.message}`)
+    .join("\n");
+
   const report = `🔗 Backlink-builder terminé (${elapsed}s)
 
-✅ ${ok} soumis/vérifiés automatiquement
-📋 ${manual} inscriptions manuelles requises
-${done > 0 ? `⏭️ ${done} déjà traités\n` : ""}${errors > 0 ? `❌ ${errors} erreurs\n` : ""}
-📊 Détail :
-${allResults.filter((r) => r.status === "ok").map((r) => `  ✅ ${r.site}`).join("\n")}
-${allResults.filter((r) => r.status === "manual").slice(0, 10).map((r) => `  📋 ${r.site}`).join("\n")}
-${errors > 0 ? allResults.filter((r) => r.status === "error").map((r) => `  ❌ ${r.site}: ${r.message}`).join("\n") : ""}
+✅ ${ok} vérifiés/soumis auto (pings moteurs + fiches avec backlink détecté)
+📋 ${manual} annuaires À INSCRIRE manuellement
+${done > 0 ? `⏭️ ${done} déjà traités\n` : ""}${errors > 0 ? `❌ ${errors} inaccessibles\n` : ""}
+✅ Détecté avec backlink :
+${allResults.filter((r) => r.status === "ok" && r.tier > 1).map((r) => `  ✅ ${r.site}`).join("\n") || "  (aucun nouveau)"}
 
-🔗 Guide inscription manuelle : DOCS/BACKLINKS-GUIDE.md`;
+📋 À INSCRIRE (checklist) :
+${manualList || "  (rien en attente)"}
+
+📇 Infos à coller À L'IDENTIQUE (cohérence NAP) :
+${NAP}
+
+ℹ️ Rappel : viser des annuaires RÉPUTÉS et une fiche cohérente (pas du volume spam). Guide : DOCS/BACKLINKS-GUIDE.md`;
 
   await notify(report, "normale");
 
