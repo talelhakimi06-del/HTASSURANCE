@@ -69,9 +69,15 @@ export default async function ({ page, context }) {
           await page.select(f.selector, f.value);
         } else if (f.kind === "check") {
           await page.evaluate((s) => { const el = document.querySelector(s); if (el && !el.checked) el.click(); }, f.selector);
+        } else if (f.value.length > 120) {
+          // Texte long (corps d'article…) : injection directe + events (sinon dépasse 60s)
+          await page.evaluate((sel, val) => {
+            const el = document.querySelector(sel);
+            if (el) { el.focus(); el.value = val; el.dispatchEvent(new Event("input", { bubbles: true })); el.dispatchEvent(new Event("change", { bubbles: true })); }
+          }, f.selector, f.value);
         } else {
           await page.click(f.selector, { clickCount: 3 }).catch(() => {});
-          await page.type(f.selector, f.value, { delay: 25 });
+          await page.type(f.selector, f.value, { delay: 15 });
         }
       } catch (e) {
         out.message += "champ KO: " + f.selector + " | ";
