@@ -16,10 +16,8 @@ const PLACE_ID_TRACHEL = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
 const PHONE_DISPLAY = "09 86 11 32 57";
 const PHONE_HREF = "tel:+33986113257";
 /*
- * WhatsApp : Remplacez le numéro ci-dessous par le vrai numéro WhatsApp
- * au format international sans le + ni les espaces (ex : 33612345678).
- * Le numéro ci-dessous correspond au 09 86 11 32 57 — vérifiez qu'il est
- * bien enregistré sur WhatsApp avant de le mettre en production.
+ * WhatsApp Business actif sur le 09 86 11 32 57 (vérifié juin 2026).
+ * Format international sans + ni espaces. wa.me ouvre le chat direct.
  */
 const WHATSAPP_NUMBER = "33986113257";
 const WHATSAPP_MESSAGE = encodeURIComponent(
@@ -919,15 +917,19 @@ export default async function Home() {
         </div>
       </footer>
 
-      {/* ══ FLOATING WHATSAPP BUTTON (desktop) ════════════════════════════ */}
+      {/* ══ FLOATING WHATSAPP BUTTON (desktop) — pastille avec label ═══════ */}
       <a
         href={WHATSAPP_HREF}
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Contactez-nous sur WhatsApp"
-        className="hidden md:flex fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-emerald-500 hover:bg-emerald-600 shadow-lg shadow-emerald-900/30 items-center justify-center transition-all hover:scale-110"
+        className="hidden md:flex fixed bottom-6 right-6 z-40 items-center gap-2.5 rounded-full bg-emerald-500 hover:bg-emerald-600 text-white font-semibold pl-3 pr-5 py-3 shadow-lg shadow-emerald-900/30 transition-all hover:scale-105"
       >
-        <WhatsAppIcon className="w-7 h-7 text-white" />
+        <span className="relative flex h-7 w-7 items-center justify-center">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-60 animate-ping" />
+          <WhatsAppIcon className="relative w-7 h-7 text-white" />
+        </span>
+        Écrivez-nous sur WhatsApp
       </a>
 
       {/* ══ BARRE STICKY MOBILE ══════════════════════════════════════════ */}
