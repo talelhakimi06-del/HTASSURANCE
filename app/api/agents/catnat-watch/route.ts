@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { saveCatnat, setAgentFlag } from "@/lib/memory";
 
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 export async function GET(req: NextRequest) {
   const cronSecret = process.env.CRON_SECRET;

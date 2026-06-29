@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { setAgentFlag } from "@/lib/memory";
 
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 const PAGES_TO_CHECK = [
   { name: "Accueil", url: "https://www.htassurance.fr" },

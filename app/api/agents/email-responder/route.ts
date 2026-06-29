@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { saveEmail } from "@/lib/memory";
 
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 // Gmail API requires OAuth credentials — this agent is ready but needs GMAIL_* env vars
 // When not configured, it logs and returns a simulation result

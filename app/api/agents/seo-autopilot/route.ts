@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { saveArticle, getAgentFlag } from "@/lib/memory";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const MODEL = process.env.ANTHROPIC_MODEL ?? "claude-sonnet-4-6";
 const BASE = "https://www.htassurance.fr";

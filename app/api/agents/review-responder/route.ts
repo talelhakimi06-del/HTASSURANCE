@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 /*
   Agent review-responder — répond automatiquement aux NOUVEAUX avis Google Business.

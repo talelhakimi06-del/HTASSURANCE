@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { saveLead } from "@/lib/memory";
 
-export const maxDuration = 30;
+export const maxDuration = 120;
 
 type Body = {
   type_sinistre: string;

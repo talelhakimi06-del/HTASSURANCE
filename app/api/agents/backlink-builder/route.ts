@@ -3,7 +3,7 @@ import { notify } from "@/lib/notify";
 import { setAgentFlag, getAgentFlag } from "@/lib/memory";
 import { solveTurnstile, isCapsolverEnabled } from "@/lib/capsolver";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 /* ─────────────────────────────────────────────────────────────
    BACKLINK BUILDER — Soumission automatisée
