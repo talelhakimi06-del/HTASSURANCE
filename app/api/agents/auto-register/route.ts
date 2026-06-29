@@ -162,7 +162,7 @@ export async function GET(req: NextRequest) {
   const max = parseInt(req.nextUrl.searchParams.get("max") || "30");
   const retry = req.nextUrl.searchParams.get("retry") === "1";
   const startTime = Date.now();
-  const TIME_BUDGET_MS = 250000; // ~250s, sous la limite maxDuration 300s
+  const TIME_BUDGET_MS = 165000; // marge pour qu'une dernière itération lente (~115s) reste sous maxDuration 300s
 
   // Données à injecter selon le mode
   let payload: object = NAP;
