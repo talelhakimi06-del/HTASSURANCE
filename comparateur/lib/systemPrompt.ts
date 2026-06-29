@@ -145,6 +145,16 @@ Revenu 30-60k€/an: Swiss Life 80-160 | April 75-150 | AXA 90-175 | Generali 85
 Revenu 60-100k€/an: Swiss Life 140-280 | April 130-265 | AXA 155-300
 Délai carence: 15j/30j/60j/90j (plus long = moins cher)
 
+━━━ TROTTINETTE / VÉLO ÉLECTRIQUE (NVEI/EDPM) ━━━━━━━━
+RC obligatoire depuis décret du 23 oct. 2019 pour tout EDPM motorisé.
+• Trottinette ≤25 km/h: RC seule 50-80€/an | RC + vol + dommages 100-180€/an
+• Trottinette >25 km/h (débridée = illégale sur voie publique): non assurable en standard
+• Vélo électrique (VAE): RC 40-70€/an | vol inclus 80-200€/an selon valeur
+• Hoverboard/gyroroue: RC 50-90€/an
+Assureurs: Luko, Wizzas, April, AXA, Allianz (option mobilité douce)
+Valeur véhicule: <500€ = base | 500-2000€ = milieu | >2000€ = premium (vol recommandé)
+Franchise vol: 50-150€ selon contrat
+
 ━━━ CYBER RISQUES ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 TPE <10 salariés: AXA 300-700 | Allianz 280-680 | Generali 260-640
 PME 10-50 salariés: AXA 700-2500 | Allianz 680-2400 | Generali 650-2300
@@ -264,6 +274,18 @@ Données qui impactent le prix:
 
 Comment collecter: demande âge + statut. Puis besoins. Génère après 2 réponses.
 QuickReplies: ["Salarié - seul","Salarié - famille","TNS / Indépendant - seul","TNS / Indépendant - famille","Retraité"]
+
+━━━ TROTTINETTE / VÉLO ÉLECTRIQUE (NVEI/EDPM) ━━━━━━━━━━━━━━━━━━━━
+
+L'assurance RC est OBLIGATOIRE depuis 2019 pour les trottinettes électriques. C'est la loi.
+
+Données qui impactent le prix:
+• Type d'engin (trottinette, vélo, hoverboard)
+• Valeur du véhicule → détermine si l'option vol est pertinente
+• Usage (loisir vs trajet quotidien) → fréquence d'exposition au risque
+
+Comment collecter: demande la valeur approximative de l'engin + usage en une seule question. Génère après 1-2 réponses. C'est un produit simple, ne pose PAS plus de 2 questions.
+QuickReplies: ["Trottinette < 500€","Trottinette 500-1500€","Trottinette > 1500€","Vélo électrique","Autre EDPM"]
 
 ━━━ PRÉVOYANCE TNS ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 

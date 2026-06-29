@@ -15,7 +15,8 @@ comparateur/
 │   ├── layout.tsx            → Layout + métadonnées SEO
 │   ├── globals.css           → Styles globaux Tailwind
 │   └── api/
-│       ├── chat/route.ts     → Endpoint OpenAI (POST)
+│       ├── chat/route.ts     → Endpoint Anthropic Claude (POST)
+│       ├── health/route.ts   → Vérification config (GET)
 │       ├── lead/route.ts     → Enregistrement lead CRM (POST)
 │       └── siret/route.ts    → Lookup entreprise data.gouv (GET)
 ├── components/
@@ -58,20 +59,29 @@ Assistant personnel pour répondre aux questions sur :
 
 ### 1. Variables d'environnement
 
-Créez un fichier `.env.local` :
+Copiez `.env.example` vers `.env.local` :
+
+```bash
+cp .env.example .env.local
+```
+
+Puis éditez `.env.local` :
 
 ```env
-OPENAI_API_KEY=sk-proj-votre-cle-ici
-OPENAI_MODEL=gpt-4o-mini
+# Obligatoire — clé Anthropic pour le chat IA
+ANTHROPIC_API_KEY=sk-ant-votre-cle-ici
 
 # Optionnel — webhook CRM (Make, Zapier, N8N...)
 CRM_WEBHOOK_URL=https://hook.eu1.make.com/xxxxx
 ```
 
-### 2. Obtenir une clé OpenAI
-- Rendez-vous sur [platform.openai.com](https://platform.openai.com/api-keys)
-- Créez une nouvelle clé
+### 2. Obtenir une clé Anthropic
+- Rendez-vous sur [console.anthropic.com](https://console.anthropic.com)
+- Créez une clé API
 - Copiez-la dans `.env.local`
+
+### 3. Vérifier la configuration
+Après déploiement, testez : `GET /api/health` — doit retourner `ok: true` si tout est configuré.
 
 ---
 
@@ -108,9 +118,10 @@ Lors du premier déploiement, Vercel vous demandera :
 
 ### Variables d'environnement Vercel
 Dans `Settings > Environment Variables`, ajoutez :
-- `OPENAI_API_KEY` = votre clé
-- `OPENAI_MODEL` = `gpt-4o-mini`
+- **`ANTHROPIC_API_KEY`** = votre clé Anthropic (obligatoire)
 - `CRM_WEBHOOK_URL` = votre webhook (optionnel)
+
+⚠️ Sans `ANTHROPIC_API_KEY`, le chat affichera une erreur. Vérifiez avec `GET /api/health` après déploiement.
 
 ---
 

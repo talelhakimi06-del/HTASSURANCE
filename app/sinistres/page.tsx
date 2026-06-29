@@ -68,30 +68,40 @@ const diagnosticQuestions = [
 ];
 
 const faqItems = [
-  {
-    q: "Mon assurance a refusé mon sinistre. Ai-je un recours ?",
-    a: "Oui, dans la grande majorité des cas. Vous disposez d'un délai de 2 ans à compter du refus (article L114-1 du Code des assurances) pour contester. De nombreux refus reposent sur des interprétations abusives des clauses contractuelles.",
-  },
-  {
-    q: "Combien coûte votre analyse de dossier ?",
-    a: "L'analyse initiale est 100% gratuite et sans engagement. Nous vous donnons un avis honnête sous 48h. Si nous prenons votre dossier en charge, nos honoraires dépendent du résultat obtenu — si on ne récupère rien, vous ne payez rien.",
-  },
-  {
-    q: "Quelle est la différence avec un avocat ?",
-    a: "Un avocat intervient en contentieux, souvent long et coûteux. Nous intervenons en amont : négociation directe avec l'assureur, expertise contradictoire, médiation. 80% des dossiers se règlent sans procédure judiciaire, plus vite et à moindre coût.",
-  },
-  {
-    q: "Quels documents dois-je fournir ?",
-    a: "Au minimum : votre contrat d'assurance, la lettre de refus de l'assureur, et les justificatifs du sinistre (photos, factures, constats). Plus votre dossier est complet, plus notre analyse sera précise.",
-  },
-  {
-    q: "Mon sinistre date de plus d'un an, est-il trop tard ?",
-    a: "Pas forcément. Le délai légal de prescription est de 2 ans. Même au-delà, certains recours restent possibles selon les circonstances. Soumettez votre dossier, notre analyse vous le dira.",
-  },
-  {
-    q: "Intervenez-vous partout en France ?",
-    a: "Oui. Nous sommes basés à Nice mais nous traitons les dossiers de toute la France. L'essentiel se fait à distance : envoi de documents, échanges par téléphone et email.",
-  },
+  // -- Recours et droits --
+  { q: "Mon assurance a refuse mon sinistre, quels sont mes recours ?", a: "Vous disposez de plusieurs recours : la reclamation ecrite aupres du service contentieux de l'assureur, la saisine du mediateur de l'assurance (gratuit, delai de reponse de 90 jours), l'expertise contradictoire avec un expert de votre choix, et en dernier ressort le tribunal judiciaire. Le delai de prescription est de 2 ans a compter de la notification de refus (article L114-1 du Code des assurances). Nous vous accompagnons sur l'ensemble de ces demarches." },
+  { q: "Quel est le delai de prescription pour contester un refus d'assurance ?", a: "Le delai de prescription est de 2 ans (article L114-1 du Code des assurances). Ce delai court a compter du jour ou l'assure a eu connaissance du refus. Attention : une lettre recommandee de reclamation interrompt ce delai et fait repartir un nouveau delai de 2 ans. N'attendez donc pas pour agir, mais sachez que vous avez des leviers pour gagner du temps." },
+  { q: "L'assurance peut-elle legalement refuser un sinistre ?", a: "Oui, un assureur peut refuser un sinistre pour plusieurs raisons legitimes : exclusion contractuelle explicite, declaration tardive au-dela des delais prevus, fausse declaration intentionnelle, defaut de paiement des primes, ou sinistre anterieur a la souscription du contrat. Cependant, en pratique, de nombreux refus sont abusifs ou mal fondes : clause floue, interpretation excessive d'une exclusion, absence de preuve du manquement invoque. C'est precisement ces refus que nous contestons avec succes." },
+  { q: "Combien coute votre analyse de dossier sinistre ?", a: "L'analyse initiale est 100% gratuite et sans engagement. Nous etudions votre contrat, la lettre de refus et les pieces du dossier, puis nous vous donnons un avis honnete sous 48 heures. Si nous prenons votre dossier en charge, nos honoraires sont lies au resultat : si nous ne recuperons rien, vous ne payez rien. Zero risque financier pour vous." },
+  // -- Degat des eaux --
+  { q: "Mon assurance refuse mon degat des eaux pour defaut d'entretien, que faire ?", a: "Le defaut d'entretien est le motif de refus le plus frequent et souvent le plus contestable. L'assureur doit prouver que vous avez manque a votre obligation d'entretien et que ce manquement est la cause directe du sinistre. En realite, une canalisation vetuste qui cede n'est pas forcement un defaut d'entretien — c'est souvent de l'usure normale. Nous analysons votre contrat pour verifier si l'exclusion est bien applicable et si l'assureur peut reellement la prouver." },
+  { q: "Degat des eaux entre voisins : qui doit payer si l'assurance refuse ?", a: "En cas de degat des eaux entre voisins, la convention IRSI (Indemnisation et Recours des Sinistres Immeuble) s'applique pour les sinistres inferieurs a 5 000 euros HT. Si votre assureur refuse, verifiez d'abord si le constat amiable degat des eaux a bien ete rempli. L'assureur de l'occupant du local ou se situe la cause du dommage doit gerer le sinistre. Si le refus persiste, une expertise contradictoire peut debloquer la situation." },
+  // -- Catastrophe naturelle --
+  { q: "Mon assurance refuse mon sinistre catastrophe naturelle, est-ce legal ?", a: "L'indemnisation CatNat est encadree par la loi (articles L125-1 et suivants du Code des assurances). L'assureur ne peut pas refuser si : un arrete interministeriel de catastrophe naturelle a ete publie au Journal Officiel, votre commune est concernee, et vous avez declare le sinistre dans les 10 jours suivant la publication. Le refus est souvent lie a un probleme de franchise (1 520 euros minimum pour les habitations) ou a la contestation du lien entre la CatNat et les dommages. Nous verifions la conformite du refus avec les textes." },
+  { q: "Fissures sur ma maison apres secheresse : comment contester le refus ?", a: "Les fissures liees au retrait-gonflement des argiles (RGA) representent 40% des sinistres CatNat. L'assureur conteste souvent le lien de causalite entre la secheresse et les fissures, ou invoque un vice de construction. Pour contester : faites realiser une etude de sol G5 par un geotechnicien, obtenez un rapport d'expert independant, et verifiez que votre commune figure bien dans l'arrete CatNat. Le cout des reparations peut depasser 50 000 euros — un refus non conteste represente une perte considerable." },
+  // -- Incendie --
+  { q: "Refus d'indemnisation incendie : quels sont les motifs contestables ?", a: "Les refus apres incendie reposent souvent sur : la suspicion de fraude (incendie volontaire), la sous-declaration de la valeur des biens, le non-respect des normes de securite (detecteur de fumee, installation electrique), ou une exclusion contractuelle pour negligence. Si l'assureur invoque la fraude, c'est a lui de le prouver (et non a vous de prouver votre innocence). Si c'est la valeur des biens qui est contestee, une expertise contradictoire avec devis de remplacement peut retablir la juste indemnisation." },
+  // -- Vol --
+  { q: "Mon assurance refuse mon sinistre vol : comment contester ?", a: "L'assureur refuse souvent un sinistre vol en invoquant : l'absence d'effraction (pas de traces visibles), le non-respect des moyens de protection exiges au contrat (serrure 3 points, alarme), ou la sous-declaration des biens voles. Pour contester : verifiez les clauses exactes de votre contrat sur les moyens de protection, rassemblez les preuves d'achat des biens voles, et sachez qu'un vol par ruse ou usage de faux est couvert meme sans effraction si votre contrat le prevoit. Le depot de plainte est indispensable." },
+  // -- Auto --
+  { q: "Mon assurance auto refuse mon sinistre : que faire ?", a: "En assurance auto, les refus courants concernent : la contestation du taux de responsabilite (via le constat amiable), l'exclusion pour alcool ou stupefiants, le refus de prise en charge du vehicule de remplacement, ou la sous-evaluation de l'indemnisation (valeur venale trop basse). Vous pouvez contester en demandant une contre-expertise du vehicule, en faisant jouer la convention IRSA entre assureurs, ou en saisissant le mediateur. Pour un accident corporel, ne signez jamais de transaction sans avis prealable." },
+  { q: "Sinistre auto : l'assurance propose une indemnisation trop basse, comment faire ?", a: "Si l'indemnisation proposee vous semble insuffisante (valeur venale sous-evaluee, vetuste excessive), vous avez le droit de demander une contre-expertise. Rassemblez les annonces de vehicules similaires (meme modele, annee, kilometrage) pour prouver la valeur reelle du marche. L'argus n'est qu'une reference, pas une obligation legale. Si l'ecart est important, nous negocions directement avec l'expert de l'assureur pour obtenir une reevaluation." },
+  // -- Decennale / Dommages-ouvrage --
+  { q: "L'assurance decennale refuse de couvrir les malfacons, ai-je un recours ?", a: "La garantie decennale couvre les desordres qui compromettent la solidite de l'ouvrage ou le rendent impropre a sa destination (article 1792 du Code civil). L'assureur peut refuser si : les dommages sont purement esthetiques, le delai de 10 ans est depasse, l'entreprise n'etait pas assuree au moment des travaux, ou les travaux ne relevent pas de la construction (entretien courant). Si le refus porte sur la nature du desordre, une expertise judiciaire peut trancher. Nos courtiers connaissent les failles des contrats decennaux." },
+  { q: "Dommages-ouvrage : l'assureur ne repond pas dans les 60 jours, que se passe-t-il ?", a: "L'assureur dommages-ouvrage a l'obligation legale de notifier sa decision dans les 60 jours suivant la reception de la declaration de sinistre (article L242-1 du Code des assurances). Passe ce delai, l'indemnisation est consideree comme acquise et vous pouvez engager les travaux de reparation aux frais de l'assureur. C'est un levier tres puissant que beaucoup d'assures ignorent. Nous verifions systematiquement le respect de ce delai." },
+  // -- RC Pro --
+  { q: "Ma RC Pro refuse de couvrir une mise en cause professionnelle, que faire ?", a: "La RC Professionnelle couvre les dommages causes aux tiers dans le cadre de votre activite. L'assureur peut refuser si : l'activite exercee ne correspond pas a celle declaree au contrat, le dommage resulte d'une faute intentionnelle, ou la reclamation est hors du perimetre de la garantie. Verifiez si votre contrat est en base fait dommageable ou reclamation — cela change le perimetre de couverture. Nous analysons la conformite du refus avec vos garanties reelles." },
+  // -- Expertise contradictoire --
+  { q: "Qu'est-ce qu'une expertise contradictoire et comment la demander ?", a: "L'expertise contradictoire est un droit fondamental de l'assure (article L114-1 du Code des assurances). Si vous contestez les conclusions de l'expert mandate par votre assureur, vous pouvez designer votre propre expert. Les deux experts tentent de s'accorder. En cas de desaccord, un troisieme expert (arbitre) est designe d'un commun accord ou par le tribunal. Le cout de votre expert est a votre charge (500 a 2 000 euros selon la complexite), mais c'est souvent un investissement tres rentable face a un refus injustifie." },
+  { q: "Comment choisir un bon expert d'assure ?", a: "Un expert d'assure defend vos interets (contrairement a l'expert mandate par l'assureur). Choisissez un expert inscrit a la compagnie des experts de justice ou membre du CNEI. Verifiez sa specialite (batiment, automobile, incendie), demandez ses tarifs a l'avance, et assurez-vous qu'il est independant de toute compagnie d'assurance. Nous travaillons avec un reseau d'experts de confiance que nous pouvons vous recommander." },
+  // -- Mediateur --
+  { q: "Comment saisir le mediateur de l'assurance ?", a: "Le mediateur de l'assurance est un recours gratuit et independant. Pour le saisir : 1) Vous devez d'abord avoir epuise les voies de recours internes (reclamation ecrite au service client, puis au service reclamations). 2) Envoyez votre dossier complet a La Mediation de l'Assurance (TSA 50110, 75441 Paris Cedex 09) ou sur leur site mediation-assurance.org. 3) Le mediateur rend un avis dans un delai moyen de 90 jours. Cet avis n'est pas contraignant mais il est suivi dans 99% des cas par les assureurs." },
+  // -- Pratique --
+  { q: "Quels documents fournir pour contester un refus d'assurance ?", a: "Pour constituer un dossier solide : 1) Le contrat d'assurance complet (conditions generales ET particulieres), 2) La lettre de refus de l'assureur avec le motif invoque, 3) La declaration de sinistre et le constat, 4) Les photos et videos des dommages (datees), 5) Les factures et devis de reparation, 6) Le rapport de l'expert mandate par l'assureur (si disponible), 7) Toute correspondance echangee avec l'assureur. Plus votre dossier est complet, plus notre analyse sera rapide et precise." },
+  { q: "Quelle est la difference entre un courtier et un avocat pour un litige assurance ?", a: "Un avocat specialise intervient principalement en phase contentieuse (tribunal), avec des honoraires de 200 a 500 euros/heure et des procedures qui durent 1 a 3 ans. Un courtier comme HT Assurance intervient en amont : nous connaissons les rouages internes des compagnies, nous negocions directement avec les services indemnisation, et nous utilisons l'expertise contradictoire et la mediation. Resultat : 80% des dossiers se reglent sans tribunal, en 2 a 6 mois, et a moindre cout. Si le contentieux est inevitable, nous vous orientons vers un avocat partenaire." },
+  { q: "Mon assureur me propose une indemnisation partielle, dois-je accepter ?", a: "Ne signez jamais une quittance d'indemnisation sous pression. Une fois signee, elle est definitive — vous ne pourrez plus reclamer la difference. Avant d'accepter, faites evaluer le montant reel de vos dommages par un expert independant. Si l'offre est inferieure de plus de 20% a l'evaluation reelle, il y a matiere a negocier. Nous analysons gratuitement les propositions d'indemnisation pour vous dire si elles sont justes ou sous-evaluees." },
+  { q: "Intervenez-vous partout en France ou uniquement a Nice ?", a: "Nous intervenons sur toute la France. Notre cabinet est base a Nice (06), mais 90% de nos dossiers sinistres se traitent a distance : envoi de documents par email, echanges telephoniques, visioconference si necessaire. Pour les expertises necessitant un deplacement (expertise contradictoire sur site), nous mobilisons notre reseau d'experts partenaires dans toute la France. Que vous soyez a Paris, Lyon, Marseille, Bordeaux ou ailleurs, nous traitons votre dossier avec la meme reactivite." },
+  { q: "Combien de temps dure une procedure de contestation de sinistre ?", a: "Les delais varient selon la voie choisie : reclamation amiable directe (2 a 8 semaines), mediation de l'assurance (3 a 6 mois), expertise contradictoire (1 a 3 mois), tribunal judiciaire (12 a 36 mois). Notre approche privilegie les voies rapides : 65% de nos dossiers sont resolus en moins de 3 mois grace a la negociation directe et a l'expertise contradictoire. Le tribunal n'est envisage qu'en dernier recours." },
 ];
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -304,7 +314,7 @@ function FaqAccordion() {
           </button>
           <div
             style={{
-              maxHeight: open === i ? 300 : 0,
+              maxHeight: open === i ? 500 : 0,
               overflow: "hidden",
               transition: "max-height 0.3s ease",
             }}
@@ -326,6 +336,21 @@ function FaqAccordion() {
 export default function SinistresPage() {
   return (
     <>
+      {/* JSON-LD FAQPage schema for Google rich snippets */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqItems.map((item) => ({
+              "@type": "Question",
+              name: item.q,
+              acceptedAnswer: { "@type": "Answer", text: item.a },
+            })),
+          }),
+        }}
+      />
       {/* Google Fonts */}
       {/* eslint-disable-next-line @next/next/no-page-custom-font */}
       <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
