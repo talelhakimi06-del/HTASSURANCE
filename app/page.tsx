@@ -352,9 +352,10 @@ export default async function Home() {
       <section className="relative min-h-screen flex items-center pt-16">
         <div className="absolute inset-0">
           <Image
-            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1600&q=80"
+            src="https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1280&q=70"
             alt="Courtier en assurance à Nice"
             fill
+            sizes="100vw"
             className="object-cover object-center"
             priority
           />

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
   },
   title: "HT Assurance — Courtier en assurance à Nice | Audit gratuit",
   description:
-    "HT Assurance, courtier indépendant à Nice. Assurance décennale, emprunteur, RC Pro, habitation, auto. Audit gratuit de vos contrats, accompagnement personnalisé. Intervient à Nice, Cannes, Antibes, Monaco et partout en France.",
+    "Courtier en assurance indépendant à Nice : sinistre refusé, décennale, emprunteur, RC Pro, auto, habitation. Audit gratuit de vos contrats à Nice, Cannes, Antibes.",
   keywords:
     "courtier assurance Nice, assurance décennale Nice, assurance emprunteur Nice, RC Pro Nice, multirisque professionnelle, audit assurance gratuit, cabinet courtage Nice, Côte d'Azur, Cannes, Antibes, Monaco",
   alternates: {
