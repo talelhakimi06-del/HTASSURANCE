@@ -171,6 +171,77 @@ export default async function ({ page, context }) {
 };
 `;
 
+/* ─────────────────────────────────────────────────────────────
+   reconForm — l'agent "voit" un formulaire : extrait tous les
+   champs (name/id/placeholder/label/type), les boutons de
+   soumission, le captcha, et détecte Cloudflare. Sert à laisser
+   Claude mapper les données SANS sélecteur codé en dur.
+───────────────────────────────────────────────────────────── */
+export type FormMap = {
+  ok: boolean;
+  url: string;
+  cloudflare: boolean;
+  captcha: CaptchaKind;
+  sitekey: string | null;
+  fields: { tag: string; type: string; name: string; id: string; placeholder: string; label: string; required: boolean }[];
+  submits: { text: string; id: string; type: string; name: string }[];
+  message: string;
+};
+
+const RECON_FN = `
+export default async function ({ page, context }) {
+  const out = { ok:false, url:context.url, cloudflare:false, captcha:"none", sitekey:null, fields:[], submits:[], message:"" };
+  try {
+    await page.goto(context.url, { waitUntil: "domcontentloaded", timeout: 35000 });
+    await new Promise(r => setTimeout(r, 1500));
+    const d = await page.evaluate(() => {
+      const labelFor = (el) => {
+        if (el.id) { const l = document.querySelector('label[for="'+el.id+'"]'); if (l) return l.innerText.trim().slice(0,60); }
+        const p = el.closest('label'); if (p) return p.innerText.trim().slice(0,60);
+        return "";
+      };
+      const fields = [...document.querySelectorAll("input,select,textarea")]
+        .filter(e => !["hidden","submit","button","image","reset"].includes(e.type))
+        .map(e => ({ tag:e.tagName.toLowerCase(), type:e.type||"", name:e.name||"", id:e.id||"", placeholder:e.placeholder||"", label:labelFor(e), required:!!e.required }))
+        .slice(0, 40);
+      let captcha="none", sitekey=null;
+      const rc=document.querySelector(".g-recaptcha[data-sitekey],div.g-recaptcha[data-sitekey]");
+      const hc=document.querySelector(".h-captcha[data-sitekey],[data-hcaptcha-sitekey]");
+      const ts=document.querySelector(".cf-turnstile[data-sitekey]");
+      if (rc){captcha="recaptcha_v2";sitekey=rc.getAttribute("data-sitekey");}
+      else if (hc){captcha="hcaptcha";sitekey=hc.getAttribute("data-sitekey")||hc.getAttribute("data-hcaptcha-sitekey");}
+      else if (ts){captcha="turnstile";sitekey=ts.getAttribute("data-sitekey");}
+      else { const f=[...document.querySelectorAll("iframe")].map(i=>i.src).find(s=>/recaptcha|hcaptcha|turnstile/.test(s||"")); if(f){const m=f.match(/[?&]k=([^&]+)/)||f.match(/sitekey=([^&]+)/); if(/hcaptcha/.test(f))captcha="hcaptcha"; else if(/turnstile/.test(f))captcha="turnstile"; else captcha="recaptcha_v2"; sitekey=m?decodeURIComponent(m[1]):null;} }
+      const submits=[...document.querySelectorAll("button,input[type=submit]")].map(b=>({text:(b.innerText||b.value||"").trim().slice(0,40),id:b.id||"",type:b.type||"",name:b.name||""})).filter(b=>b.text).slice(0,12);
+      const cf = /just a moment|attention required|verifying you are human|un instant/i.test(document.body.innerText||"");
+      return { fields, captcha, sitekey, submits, cloudflare: cf };
+    });
+    Object.assign(out, d, { ok: !d.cloudflare && d.fields.length > 0 });
+    out.message = d.cloudflare ? "cloudflare" : (d.fields.length ? "form trouvé" : "aucun champ");
+  } catch (e) { out.message = "exception: " + (e && e.message ? e.message : String(e)); }
+  return { data: out, type: "application/json" };
+}
+`;
+
+export async function reconForm(url: string): Promise<FormMap> {
+  const token = process.env.BROWSERLESS_TOKEN;
+  if (!token) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: "BROWSERLESS_TOKEN manquant" };
+  try {
+    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=50000`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: RECON_FN, context: { url } }),
+      signal: AbortSignal.timeout(60000),
+    });
+    if (!res.ok) return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: `Browserless HTTP ${res.status}` };
+    const data = await res.json();
+    const o = data?.data ?? data;
+    return { ok: !!o.ok, url, cloudflare: !!o.cloudflare, captcha: o.captcha ?? "none", sitekey: o.sitekey ?? null, fields: o.fields ?? [], submits: o.submits ?? [], message: o.message ?? "" };
+  } catch (err) {
+    return { ok: false, url, cloudflare: false, captcha: "none", sitekey: null, fields: [], submits: [], message: `exception: ${err instanceof Error ? err.message : String(err)}` };
+  }
+}
+
 export async function autoSubmitForm(config: SubmitConfig): Promise<SubmitOutcome> {
   const token = process.env.BROWSERLESS_TOKEN;
   const capsolverKey = process.env.CAPSOLVER_API_KEY ?? process.env.CAPSOLVER ?? null;
