@@ -6,7 +6,8 @@
 const API_URL = "https://api.capsolver.com";
 
 function getKey(): string | null {
-  return process.env.CAPSOLVER_API_KEY ?? null;
+  // Accepte les deux noms de variable (CAPSOLVER_API_KEY ou CAPSOLVER)
+  return process.env.CAPSOLVER_API_KEY ?? process.env.CAPSOLVER ?? null;
 }
 
 type TaskResult = {
