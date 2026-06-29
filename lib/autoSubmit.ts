@@ -58,8 +58,9 @@ export default async function ({ page, context }) {
 
   try {
     await page.setViewport({ width: 1280, height: 900 });
-    await page.goto(config.url, { waitUntil: "domcontentloaded", timeout: 40000 });
-    await new Promise(r => setTimeout(r, 1500));
+    await page.goto(config.url, { waitUntil: "domcontentloaded", timeout: 20000 });
+    await page.waitForSelector("input,select,textarea", { timeout: 6000 }).catch(() => {});
+    await new Promise(r => setTimeout(r, 1200));
 
     // 1) Remplissage des champs
     for (const f of config.fields) {
@@ -118,7 +119,7 @@ export default async function ({ page, context }) {
 
       if (created && created.taskId) {
         let token = null;
-        for (let i = 0; i < 40; i++) {
+        for (let i = 0; i < 13; i++) { // ~39s max : reste sous la limite Browserless 60s
           await new Promise(r => setTimeout(r, 3000));
           const res = await fetch("https://api.capsolver.com/getTaskResult", {
             method: "POST", headers: { "Content-Type": "application/json" },
@@ -199,7 +200,9 @@ export default async function ({ page, context }) {
   const out = { ok:false, url:context.url, cloudflare:false, captcha:"none", sitekey:null, fields:[], submits:[], message:"" };
   try {
     await page.goto(context.url, { waitUntil: "domcontentloaded", timeout: 22000 });
-    await new Promise(r => setTimeout(r, 1000));
+    // attendre que les champs (souvent rendus en JS) apparaissent
+    await page.waitForSelector("input:not([type=hidden]),select,textarea", { timeout: 7000 }).catch(() => {});
+    await new Promise(r => setTimeout(r, 1500));
     const d = await page.evaluate(() => {
       const labelFor = (el) => {
         if (el.id) { const l = document.querySelector('label[for="'+el.id+'"]'); if (l) return l.innerText.trim().slice(0,60); }
