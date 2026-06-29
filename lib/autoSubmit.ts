@@ -58,7 +58,8 @@ export default async function ({ page, context }) {
 
   try {
     await page.setViewport({ width: 1280, height: 900 });
-    await page.goto(config.url, { waitUntil: "networkidle2", timeout: 45000 });
+    await page.goto(config.url, { waitUntil: "domcontentloaded", timeout: 40000 });
+    await new Promise(r => setTimeout(r, 1500));
 
     // 1) Remplissage des champs
     for (const f of config.fields) {
@@ -179,14 +180,14 @@ export async function autoSubmitForm(config: SubmitConfig): Promise<SubmitOutcom
   }
 
   try {
-    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}`, {
+    const res = await fetch(`${BROWSERLESS_FUNCTION_URL}?token=${token}&timeout=60000`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code: REMOTE_FN,
         context: { config, capsolverKey },
       }),
-      signal: AbortSignal.timeout(170000),
+      signal: AbortSignal.timeout(70000),
     });
 
     if (!res.ok) {
