@@ -23,6 +23,7 @@
     { "path": "/api/agents/orchestrator?mode=learn", "schedule": "0 18 * * 5" },
     { "path": "/api/agents/backlink-builder?tier=all", "schedule": "0 10 * * *" },
     { "path": "/api/agents/auto-register", "schedule": "0 13 * * *" },
+    { "path": "/api/agents/auto-register?mode=activate", "schedule": "0 14 * * *" },
     { "path": "/api/agents/auto-register?mode=article", "schedule": "0 15 * * *" }
   ]
 }

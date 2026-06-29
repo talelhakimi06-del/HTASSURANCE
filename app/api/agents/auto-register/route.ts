@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { notify } from "@/lib/notify";
 import { getAgentFlag, setAgentFlag } from "@/lib/memory";
 import { reconForm, autoSubmitForm, type SubmitConfig, type SubmitOutcome, type FieldFill, type FormMap } from "@/lib/autoSubmit";
+import { scanAndActivate } from "@/lib/emailActivate";
 
 export const maxDuration = 300;
 
@@ -153,6 +154,18 @@ export async function GET(req: NextRequest) {
     if (!isVercel && auth !== `Bearer ${cronSecret}`) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
   }
 
+  // Mode activation : scanne Gmail et ouvre les liens d'activation des inscriptions
+  if (req.nextUrl.searchParams.get("mode") === "activate") {
+    const rep = await scanAndActivate();
+    const okN = rep.activated.filter((a) => a.status >= 200 && a.status < 400).length;
+    await notify(
+      `📧 Activation emails — ${rep.scanned} mail(s) scanné(s) · ${okN} lien(s) activé(s)\n` +
+      (rep.activated.map((a) => `${a.status >= 200 && a.status < 400 ? "✅" : "⚠️"} ${a.subject.slice(0, 40)} → ${a.url.slice(0, 55)}`).join("\n") || (rep.note ?? "(rien à activer)")),
+      "normale"
+    );
+    return NextResponse.json(rep);
+  }
+
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return NextResponse.json({ error: "ANTHROPIC_API_KEY manquante" }, { status: 500 });
   if (!process.env.BROWSERLESS_TOKEN) return NextResponse.json({ error: "BROWSERLESS_TOKEN manquant" }, { status: 500 });
@@ -226,15 +239,22 @@ export async function GET(req: NextRequest) {
     results.push({ name: t.name, url: t.url, status: out.ok ? "✅ soumis" : "❌ échec", captchaSolved: out.captchaSolved, captcha: form.captcha, message: out.message, finalUrl: out.finalUrl });
   }
 
+  // Activation automatique des emails de confirmation reçus pendant le run
+  let activation: Awaited<ReturnType<typeof scanAndActivate>> | null = null;
+  if (mode === "directory" && !forceUrl) {
+    try { activation = await scanAndActivate(); } catch { /* best effort */ }
+  }
+
   const okCount = results.filter((r) => String(r.status).startsWith("✅")).length;
   const solved = results.filter((r) => r.captchaSolved).length;
+  const activatedN = activation ? activation.activated.filter((a) => a.status >= 200 && a.status < 400).length : 0;
 
   const report = `🤖 Auto-register autonome — mode ${mode}
 ${mode === "article" && article ? `📝 Article : « ${article.title} » (lien → ${SITE})\n` : ""}🎯 ${targets.length} cibles · ${processed} traitées${stoppedForTime ? " (arrêt budget temps — reprise au prochain run)" : ""}
-✅ ${okCount} soumis · 🔓 ${solved} captcha(s) résolu(s)
+✅ ${okCount} soumis · 🔓 ${solved} captcha(s) résolu(s)${activation ? ` · 📧 ${activatedN} email(s) activé(s)` : ""}
 
 ${results.map((r) => `${r.status} — ${r.name}${r.captcha && r.captcha !== "none" ? ` [${r.captcha}${r.captchaSolved ? "✓" : ""}]` : ""}\n   ${r.message || r.reason || r.note || ""}`).join("\n")}`;
 
   await notify(report, "normale");
-  return NextResponse.json({ mode, article: article ? { title: article.title } : undefined, discovered: targets.length, processed, ok: okCount, solved, results });
+  return NextResponse.json({ mode, article: article ? { title: article.title } : undefined, discovered: targets.length, processed, ok: okCount, solved, activated: activatedN, activation: activation?.activated, results });
 }
