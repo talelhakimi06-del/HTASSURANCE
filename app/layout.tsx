@@ -4,6 +4,8 @@ import "./globals.css";
 import RecaptchaProvider from "./components/RecaptchaProvider";
 import CookieBanner from "./components/CookieBanner";
 import GoogleAnalytics from "./components/GoogleAnalytics";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -148,6 +150,10 @@ export default function RootLayout({
         <RecaptchaProvider>{children}</RecaptchaProvider>
         <CookieBanner />
         <GoogleAnalytics />
+        {/* Analytics Vercel : sans cookie, mesure tous les visiteurs (RGPD-friendly)
+            + Speed Insights = vraies Core Web Vitals terrain (LCP/CLS/INP) */}
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
