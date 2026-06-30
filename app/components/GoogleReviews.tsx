@@ -1,41 +1,16 @@
-import { headers } from "next/headers";
 import GoogleReviewCard from "./GoogleReviewCard";
-import type { ReviewsResponse } from "@/app/api/google-reviews/route";
+import { getReviewsForDisplay } from "@/lib/googleReviews";
 
 const PLACE_ID_DEFAULT = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
 
 /* ─────────────────────────────────────────────────────────────────────
-   Server Component — fetch /api/google-reviews côté serveur uniquement.
-
-   On respecte volontairement la consigne d'utiliser la route API
-   plutôt que la lib directement : ça permet d'utiliser le même
-   endpoint pour des consommateurs externes (admin, app mobile…) avec
-   un cache CDN unique.
-
-   Skeleton : la page est SSR et la grille est rendue immédiatement ;
-   en cas d'erreur API, on retourne null et la section disparaît.
+   Server Component — lit Google Places via la lib DIRECTEMENT (plus de
+   self-fetch HTTP de notre propre route, qui figeait les avis au build
+   avec les données de la version précédente). Cache 6h côté lib.
 ───────────────────────────────────────────────────────────────────── */
 
-async function fetchReviews(): Promise<ReviewsResponse | null> {
-  // Construit une URL absolue depuis les headers de la requête en cours.
-  // Fonctionne en dev (localhost) comme en prod (Vercel) sans config.
-  try {
-    const h = await headers();
-    const host =
-      h.get("x-forwarded-host") ?? h.get("host") ?? "www.htassurance.fr";
-    const proto = h.get("x-forwarded-proto") ?? "https";
-    const url = `${proto}://${host}/api/google-reviews`;
-
-    const res = await fetch(url, { next: { revalidate: 86400 } });
-    if (!res.ok) return null;
-    return (await res.json()) as ReviewsResponse;
-  } catch {
-    return null;
-  }
-}
-
 export default async function GoogleReviews() {
-  const data = await fetchReviews();
+  const data = await getReviewsForDisplay();
   if (!data || data.reviews.length === 0) return null;
 
   const placeId = process.env.GOOGLE_PLACE_ID ?? PLACE_ID_DEFAULT;

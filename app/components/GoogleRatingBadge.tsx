@@ -1,23 +1,6 @@
-import { headers } from "next/headers";
-import type { ReviewsResponse } from "@/app/api/google-reviews/route";
+import { getReviewsForDisplay } from "@/lib/googleReviews";
 
 const PLACE_ID_DEFAULT = "ChIJuSypYgbQzRIRqX2X-zuw5ao";
-
-async function fetchReviews(): Promise<ReviewsResponse | null> {
-  try {
-    const h = await headers();
-    const host =
-      h.get("x-forwarded-host") ?? h.get("host") ?? "www.htassurance.fr";
-    const proto = h.get("x-forwarded-proto") ?? "https";
-    const res = await fetch(`${proto}://${host}/api/google-reviews`, {
-      next: { revalidate: 86400 },
-    });
-    if (!res.ok) return null;
-    return (await res.json()) as ReviewsResponse;
-  } catch {
-    return null;
-  }
-}
 
 /* ─────────────────────────────────────────────────────────────────────
    Badge compact : ★ 4.1 (31)  → lien vers la fiche Google.
@@ -35,7 +18,7 @@ export default async function GoogleRatingBadge({
   variant?: "light" | "dark";
   className?: string;
 }) {
-  const data = await fetchReviews();
+  const data = await getReviewsForDisplay();
   if (!data || data.count === 0 || data.rating === 0) return null;
 
   const placeId = process.env.GOOGLE_PLACE_ID ?? PLACE_ID_DEFAULT;

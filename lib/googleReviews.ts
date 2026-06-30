@@ -47,7 +47,7 @@ export async function getGoogleReviews(): Promise<GoogleReviewsData> {
         "X-Goog-Api-Key": apiKey,
         "X-Goog-FieldMask": "rating,userRatingCount,reviews",
       },
-      next: { revalidate: 86400 },
+      next: { revalidate: 21600 }, // 6h — rafraîchit les avis 4x/jour
     });
 
     if (!res.ok) {
@@ -95,4 +95,39 @@ export function filterReviews(
   max = 6
 ): GoogleReview[] {
   return reviews.filter((r) => r.rating >= minRating).slice(0, max);
+}
+
+/* Forme prête à l'affichage (compatible avec les composants).
+   On lit Google Places DIRECTEMENT (pas de self-fetch HTTP de notre
+   propre route) → évite le cache auto-entretenu qui figeait les avis. */
+export type ReviewForDisplay = {
+  author: string;
+  rating: number;
+  text: string;
+  time: string;
+  publishTime: string;
+  profilePhotoUrl: string | null;
+};
+export type ReviewsForDisplay = {
+  rating: number;
+  count: number;
+  displayName: string;
+  reviews: ReviewForDisplay[];
+};
+
+export async function getReviewsForDisplay(): Promise<ReviewsForDisplay> {
+  const d = await getGoogleReviews();
+  return {
+    rating: d.rating,
+    count: d.totalReviews,
+    displayName: "HT ASSURANCE",
+    reviews: d.reviews.map((r) => ({
+      author: r.authorName,
+      rating: r.rating,
+      text: r.text,
+      time: r.relativeTime,
+      publishTime: r.publishTime,
+      profilePhotoUrl: r.authorPhoto ?? null,
+    })),
+  };
 }
