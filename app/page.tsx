@@ -914,6 +914,11 @@ export default async function Home() {
                   </a>
                 </li>
                 <li>
+                  <a href="/assurance-pharmacien" className="hover:text-white transition-colors">
+                    Assurance pharmacien
+                  </a>
+                </li>
+                <li>
                   <a href="/blog" className="text-blue-400 hover:text-blue-300 font-semibold transition-colors">
                     Blog &amp; Guides assurance
                   </a>
