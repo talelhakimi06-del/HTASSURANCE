@@ -63,6 +63,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
+  const villes = ["nice", "cannes", "cagnes-sur-mer", "antibes"];
+  const cityPages: MetadataRoute.Sitemap = villes.map((v) => ({
+    url: `${BASE}/courtier-assurance/${v}`,
+    lastModified: now,
+    changeFrequency: "monthly" as const,
+    priority: 0.8,
+  }));
+
   const blogPages: MetadataRoute.Sitemap = getAllMeta().map((post) => ({
     url: `${BASE}/blog/${post.slug}`,
     lastModified: now,
@@ -70,5 +78,5 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: 0.7,
   }));
 
-  return [...pages, ...blogPages];
+  return [...pages, ...cityPages, ...blogPages];
 }

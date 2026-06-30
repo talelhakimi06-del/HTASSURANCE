@@ -889,6 +889,13 @@ export default async function Home() {
                   </a>
                 </p>
                 <p className="text-xs">Lun – Ven : 10h – 19h</p>
+                <p className="mt-3 text-xs leading-relaxed">
+                  Courtier à{" "}
+                  <a href="/courtier-assurance/nice" className="hover:text-white underline-offset-2 hover:underline">Nice</a>,{" "}
+                  <a href="/courtier-assurance/cannes" className="hover:text-white underline-offset-2 hover:underline">Cannes</a>,{" "}
+                  <a href="/courtier-assurance/cagnes-sur-mer" className="hover:text-white underline-offset-2 hover:underline">Cagnes-sur-Mer</a>,{" "}
+                  <a href="/courtier-assurance/antibes" className="hover:text-white underline-offset-2 hover:underline">Antibes</a>
+                </p>
               </div>
             </div>
             <div>
