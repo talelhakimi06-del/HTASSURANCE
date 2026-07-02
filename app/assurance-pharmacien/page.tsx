@@ -13,7 +13,10 @@ const WHATSAPP_HREF =
   "https://wa.me/33986113257?text=" +
   encodeURIComponent("Bonjour, je suis pharmacien et je souhaite un devis pour mon officine. Pouvez-vous me recontacter ? Merci.");
 const SITE = "https://www.htassurance.fr";
-const DEVIS_URL = "https://hakimitalel.plussimple.fr/fr/assurances/mrp-officine";
+// NB : l'accès direct à /fr/assurances/mrp-officine renvoie une 500 (SSR cassé côté +Simple).
+// La page liste /fr/assurances répond 200 → le prospect clique "Pharmacie d'officine" (navigation
+// interne SPA = OK) puis "Faire un devis". Entrée fiable sans dépendre de +Simple.
+const DEVIS_URL = "https://hakimitalel.plussimple.fr/fr/assurances";
 const URL = `${SITE}/assurance-pharmacien`;
 
 export const metadata: Metadata = {
@@ -142,7 +145,7 @@ export default function AssurancePharmacienPage() {
             <a href={DEVIS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl px-8 py-4 text-lg shadow-lg">
               ⚡ Faire mon devis pharmacien en ligne
             </a>
-            <p className="text-slate-500 text-sm mt-4">Outil de tarification HT Assurance · powered by +Simple</p>
+            <p className="text-slate-500 text-sm mt-4">Sur la page qui s&apos;ouvre, cliquez sur « <strong>Pharmacie d&apos;officine</strong> » → « Faire un devis ». Outil de tarification HT Assurance · powered by +Simple.</p>
           </div>
         </section>
 
