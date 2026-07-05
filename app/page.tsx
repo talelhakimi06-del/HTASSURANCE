@@ -267,7 +267,7 @@ export default async function Home() {
 
       {/* ══ NAVBAR ══════════════════════════════════════════════════════ */}
       <nav className="fixed top-0 inset-x-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/70 shadow-sm">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
           <a href="#" className="flex items-center gap-2.5">
             <Image
               src="/logo-ht-noir.png"
@@ -282,52 +282,52 @@ export default async function Home() {
             </span>
           </a>
 
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-            <a href="#services" className="hover:text-slate-900 transition-colors">Services</a>
-            <a href="#pourquoi" className="hover:text-slate-900 transition-colors">Pourquoi nous</a>
-            <a href="#zone" className="hover:text-slate-900 transition-colors">Zone d&apos;intervention</a>
-            <a href="#faq" className="hover:text-slate-900 transition-colors">FAQ</a>
-            <a href="/sinistres" className="hover:text-slate-900 transition-colors">Sinistres refusés</a>
-            <a href="/blog" className="hover:text-slate-900 transition-colors">Blog</a>
+          <div className="hidden lg:flex items-center gap-5 text-sm font-medium text-slate-600">
+            {/* Liens d'ancre : réservés au très grand écran pour éviter la surcharge du header */}
+            <a href="#services" className="hidden xl:inline hover:text-slate-900 transition-colors">Services</a>
+            <a href="/sinistres" className="hidden xl:inline whitespace-nowrap hover:text-slate-900 transition-colors">Sinistres refusés</a>
+            <a href="/blog" className="hidden xl:inline hover:text-slate-900 transition-colors">Blog</a>
             {/* WhatsApp = canal de contact privilégié, mis en avant avant le téléphone */}
             <a
               href={WHATSAPP_HREF}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl px-4 py-2 transition-colors shadow-sm"
+              className="flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl px-4 py-2 transition-colors shadow-sm shrink-0 whitespace-nowrap"
             >
-              <WhatsAppIcon className="w-4 h-4" />
+              <WhatsAppIcon className="w-4 h-4 shrink-0" />
               WhatsApp
             </a>
             <a
               href={PHONE_HREF}
-              className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-xs"
+              className="flex items-center gap-1.5 text-slate-500 hover:text-slate-800 transition-colors text-xs shrink-0 whitespace-nowrap"
               aria-label={`Ou nous appeler au ${PHONE_DISPLAY}`}
             >
-              <Icon d={ICONS.phone} className="w-3.5 h-3.5" />
+              <Icon d={ICONS.phone} className="w-3.5 h-3.5 shrink-0" />
               {PHONE_DISPLAY}
             </a>
-            <GoogleRatingBadge variant="light" />
+            <div className="shrink-0">
+              <GoogleRatingBadge variant="light" />
+            </div>
             {/* Comparateur — bouton distinct avec badge IA */}
             <a
               href="/comparateur"
-              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold rounded-xl px-4 py-2 shadow-sm shadow-blue-200 transition-all hover:shadow-md hover:-translate-y-px"
+              className="flex items-center gap-2 bg-gradient-to-r from-blue-600 to-violet-600 hover:from-blue-700 hover:to-violet-700 text-white font-semibold rounded-xl px-4 py-2 shadow-sm shadow-blue-200 transition-all hover:shadow-md hover:-translate-y-px shrink-0 whitespace-nowrap"
             >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
+              <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.8}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
               </svg>
               Comparateur IA
             </a>
             <a
               href="#contact"
-              className="bg-blue-600 text-white rounded-xl px-5 py-2 hover:bg-blue-700 transition-colors"
+              className="bg-blue-600 text-white rounded-xl px-5 py-2 hover:bg-blue-700 transition-colors shrink-0 whitespace-nowrap"
             >
               Audit gratuit
             </a>
           </div>
 
-          {/* Mobile — 2 boutons visibles */}
-          <div className="md:hidden flex items-center gap-2">
+          {/* Mobile / tablette — 2 boutons visibles */}
+          <div className="lg:hidden flex items-center gap-2">
             <a
               href="/comparateur"
               className="flex items-center gap-1.5 bg-gradient-to-r from-blue-600 to-violet-600 text-white rounded-lg px-3 py-2 text-sm font-semibold shadow-sm"
