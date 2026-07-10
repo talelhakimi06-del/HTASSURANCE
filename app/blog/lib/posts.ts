@@ -34,6 +34,8 @@ import * as s9 from "../posts/assurance-refuse-vol-cambriolage";
 import * as s10 from "../posts/indemnisation-insuffisante-assurance-contester";
 // Pharmacien
 import * as ph1 from "../posts/assurance-pharmacie-officine-garanties";
+import * as ph2 from "../posts/assurance-installation-reprise-pharmacie-officine";
+import * as ph3 from "../posts/rc-pro-pharmacien-responsabilite-titulaire";
 
 const tsxPosts: Post[] = [
   { ...p1.meta, Content: p1.default },
@@ -69,6 +71,8 @@ const tsxPosts: Post[] = [
   { ...s10.meta, Content: s10.default },
   // Pharmacien
   { ...ph1.meta, Content: ph1.default },
+  { ...ph2.meta, Content: ph2.default },
+  { ...ph3.meta, Content: ph3.default },
 ];
 
 const tsxSlugs = new Set(tsxPosts.map((p) => p.slug));
