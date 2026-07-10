@@ -697,6 +697,32 @@ export default function SinistresPage() {
           <FaqAccordion />
         </section>
 
+        {/* ══ GUIDES — maillage interne vers le blog ══════════════════════ */}
+        <section style={{ padding: "0 24px 80px", maxWidth: 1100, margin: "0 auto" }}>
+          <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: "clamp(24px, 3.5vw, 32px)", fontWeight: 700, color: NAVY, marginBottom: 28 }}>
+            Nos guides pour contester un refus
+          </h2>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+            {[
+              { href: "/blog/degat-des-eaux-assurance-refuse", t: "Dégât des eaux refusé par l'assurance" },
+              { href: "/blog/contre-expertise-assurance-comment-faire", t: "Contre-expertise : comment la demander" },
+              { href: "/blog/mediateur-assurance-saisine-guide", t: "Saisir le médiateur de l'assurance" },
+              { href: "/blog/lettre-mise-en-demeure-assureur-modele", t: "Lettre de mise en demeure (modèle gratuit)" },
+              { href: "/blog/indemnisation-insuffisante-assurance-contester", t: "Indemnisation insuffisante : la contester" },
+              { href: "/blog/motifs-refus-assurance-habitation", t: "Les motifs de refus en assurance habitation" },
+            ].map((a) => (
+              <Link
+                key={a.href}
+                href={a.href}
+                style={{ display: "block", border: "1px solid #e2e8f0", borderRadius: 16, padding: 20, textDecoration: "none" }}
+              >
+                <span style={{ color: AMBER, fontSize: 13, fontWeight: 700 }}>Guide →</span>
+                <p style={{ color: NAVY, fontWeight: 600, marginTop: 6, lineHeight: 1.35 }}>{a.t}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* ══ CTA FINAL ═══════════════════════════════════════════════════ */}
         <section
           style={{

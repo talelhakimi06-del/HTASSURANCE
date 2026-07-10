@@ -175,7 +175,13 @@ export default function AssurancePharmacienPage() {
                 </details>
               ))}
             </div>
-            <div className="text-center mt-10">
+            <p className="text-slate-600 text-sm mt-8 text-center">
+              Pour aller plus loin :{" "}
+              <Link href="/blog/assurance-pharmacie-officine-garanties" className="text-emerald-700 font-semibold underline">
+                quelles garanties pour une pharmacie d&apos;officine&nbsp;?
+              </Link>
+            </p>
+            <div className="text-center mt-6">
               <a href={DEVIS_URL} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl px-8 py-4 shadow-lg">⚡ Obtenir mon devis en ligne</a>
             </div>
           </div>
@@ -197,6 +203,7 @@ export default function AssurancePharmacienPage() {
             <p className="text-white font-semibold mb-3 uppercase tracking-wider text-xs">Liens</p>
             <ul className="space-y-1.5">
               <li><a href={DEVIS_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white">Devis pharmacien en ligne</a></li>
+              <li><Link href="/blog/assurance-pharmacie-officine-garanties" className="hover:text-white">Guide assurance officine</Link></li>
               <li><Link href="/sinistres" className="hover:text-white">Sinistre refusé</Link></li>
               <li><Link href="/" className="hover:text-white">Accueil</Link></li>
             </ul>

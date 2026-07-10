@@ -268,6 +268,30 @@ export default async function VillePage({ params }: { params: Promise<{ ville: s
           </div>
         </section>
 
+        {/* Guides & conseils — maillage interne vers le blog */}
+        <section className="px-6 pb-16 max-w-6xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-6">Guides &amp; conseils</h2>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[
+              { href: "/blog/assurance-refuse-sinistre-que-faire", t: "Sinistre refusé : quels recours ?" },
+              { href: "/blog/degat-des-eaux-assurance-refuse", t: "Dégât des eaux refusé par l'assurance" },
+              { href: "/blog/contre-expertise-assurance-comment-faire", t: "Contre-expertise : comment la demander" },
+              { href: "/blog/motifs-refus-assurance-habitation", t: "Les motifs de refus en assurance habitation" },
+              { href: "/blog/changer-assurance-emprunteur", t: "Changer d'assurance emprunteur (loi Lemoine)" },
+              { href: "/blog/prix-assurance-decennale-artisan", t: "Prix d'une assurance décennale artisan" },
+            ].map((a) => (
+              <Link
+                key={a.href}
+                href={a.href}
+                className="block rounded-2xl border border-slate-200 p-5 hover:border-blue-300 hover:shadow-sm transition-all"
+              >
+                <span className="text-blue-600 text-sm font-semibold">Guide →</span>
+                <p className="text-slate-900 font-semibold mt-1 leading-snug">{a.t}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* Contact */}
         <section id="contact" className="bg-slate-50 px-6 py-16">
           <div className="max-w-2xl mx-auto">
