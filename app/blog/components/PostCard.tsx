@@ -8,6 +8,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "RC Pro": "bg-blue-100 text-blue-700",
   "Assurance emprunteur": "bg-emerald-100 text-emerald-700",
   "Habitation": "bg-amber-100 text-amber-700",
+  "Pharmacien": "bg-teal-100 text-teal-700",
 };
 
 export default function PostCard({ post }: { post: PostMeta }) {

@@ -4,6 +4,7 @@ export type Category =
   | "RC Pro"
   | "Assurance emprunteur"
   | "Habitation"
+  | "Pharmacien"
   | "Sinistres";
 
 export type PostMeta = {

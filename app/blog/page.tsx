@@ -20,6 +20,7 @@ const CATEGORIES: Category[] = [
   "RC Pro",
   "Assurance emprunteur",
   "Habitation",
+  "Pharmacien",
 ];
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -29,6 +30,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   "RC Pro": "bg-blue-100 text-blue-700 hover:bg-blue-200",
   "Assurance emprunteur": "bg-emerald-100 text-emerald-700 hover:bg-emerald-200",
   "Habitation": "bg-amber-100 text-amber-700 hover:bg-amber-200",
+  "Pharmacien": "bg-teal-100 text-teal-700 hover:bg-teal-200",
 };
 
 export default function BlogPage() {
