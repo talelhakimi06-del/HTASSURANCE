@@ -96,7 +96,7 @@ export default function Content() {
 
       <h2>HT Assurance, votre courtier emprunteur</h2>
       <p>
-        HT Assurance compare les meilleures offres d&apos;assurance emprunteur individuelles
+        HT Assurance <a href="/comparateur" className="text-blue-600 font-semibold underline">compare les meilleures offres d&apos;assurance emprunteur</a> individuelles
         du marché et vous accompagne dans toutes les démarches de changement. Nous
         travaillons avec les principaux assureurs spécialisés et négocions les conditions
         en votre faveur.

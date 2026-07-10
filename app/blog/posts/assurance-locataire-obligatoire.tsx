@@ -107,7 +107,7 @@ export default function Content() {
 
       <h2>HT Assurance, votre courtier habitation à Nice</h2>
       <p>
-        HT Assurance compare les offres d&apos;assurance habitation pour les locataires
+        HT Assurance <a href="/comparateur" className="text-blue-600 font-semibold underline">compare les offres d&apos;assurance habitation</a> pour les locataires
         à Nice et sur la Côte d&apos;Azur. Nous vous aidons à choisir la couverture adaptée
         à votre logement et à vos biens, au meilleur prix.
       </p>

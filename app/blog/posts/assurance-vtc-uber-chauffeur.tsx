@@ -111,7 +111,7 @@ export default function Content() {
       </p>
       <p>
         Contactez-nous depuis Nice, Cannes, Antibes ou Monaco pour une analyse gratuite
-        de votre situation et un devis personnalisé sous 24 h.
+        de votre situation et un <a href="/comparateur" className="text-blue-600 font-semibold underline">devis personnalisé</a> sous 24 h.
       </p>
     </>
   );

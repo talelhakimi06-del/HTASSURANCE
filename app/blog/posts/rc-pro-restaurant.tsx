@@ -113,7 +113,7 @@ export default function Content() {
       <h2>HT Assurance, votre courtier pour les professionnels de la restauration</h2>
       <p>
         HT Assurance accompagne les restaurateurs et professionnels de la restauration
-        à Nice et sur la Côte d&apos;Azur. Nous analysons votre activité en détail pour vous
+        à <a href="/courtier-assurance/nice" className="text-blue-600 font-semibold underline">Nice et sur la Côte d&apos;Azur</a>. Nous analysons votre activité en détail pour vous
         proposer une couverture sans lacune — et négocions les meilleures conditions
         auprès des assureurs spécialisés en risques commerciaux et restauration.
       </p>

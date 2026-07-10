@@ -109,7 +109,7 @@ export default function Content() {
         qualité/prix du marché.
       </p>
       <p>
-        Contactez-nous pour une comparaison gratuite et sans engagement, que vous soyez
+        Contactez-nous pour une <a href="/comparateur" className="text-blue-600 font-semibold underline">comparaison gratuite et sans engagement</a>, que vous soyez
         basé à Nice, Cannes, Antibes, Monaco ou ailleurs en France.
       </p>
     </>

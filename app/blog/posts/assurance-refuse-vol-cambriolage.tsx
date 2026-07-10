@@ -32,7 +32,7 @@ export default function Content() {
       })}} />
 
       <p className="answer-direct text-lg leading-relaxed">
-        L assurance refuse votre sinistre vol ? C est un cas frequent. Absence d effraction, moyens de protection non conformes, declaration tardive... Voici comment contester efficacement et obtenir votre indemnisation.
+        L assurance refuse votre sinistre vol ? C est un cas frequent. Absence d effraction, moyens de protection non conformes, declaration tardive... Voici comment <a href="/sinistres" className="text-blue-600 font-semibold underline">contester efficacement</a> et obtenir votre indemnisation.
       </p>
 
       <h2>Les motifs de refus les plus frequents</h2>
@@ -49,7 +49,7 @@ export default function Content() {
       <p>Depot de plainte (obligatoire), factures d achat des biens voles, photos des objets (album photo, reseaux sociaux), temoignages de voisins, rapport de police, releves de compte montrant les achats.</p>
 
       <h2>Contestation : mode d emploi</h2>
-      <p>Envoyez une reclamation LRAR au service contentieux, en joignant toutes les preuves. Si le refus persiste, demandez une expertise contradictoire pour evaluer les dommages. Le mediateur de l assurance peut trancher en votre faveur.</p>
+      <p>Envoyez une reclamation LRAR au service contentieux, en joignant toutes les preuves. Si le refus persiste, demandez une <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">expertise contradictoire</a> pour evaluer les dommages. Le mediateur de l assurance peut trancher en votre faveur.</p>
 
       <WarningBox>Ne signez jamais une quittance d&apos;indemnisation sous pression. Prenez le temps de verifier que le montant est juste.</WarningBox>
 

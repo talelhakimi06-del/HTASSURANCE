@@ -117,8 +117,8 @@ export default function Content() {
       <h2>HT Assurance, votre courtier RC Pro à Nice</h2>
       <p>
         HT Assurance accompagne les consultants indépendants, freelances et petites
-        structures de conseil dans la souscription de leur RC Pro. Nous comparons les
-        offres de plusieurs compagnies et vous trouvons la couverture adaptée à votre
+        structures de conseil dans la souscription de leur RC Pro. <a href="/comparateur" className="text-blue-600 font-semibold underline">Nous comparons les
+        offres de plusieurs compagnies</a> et vous trouvons la couverture adaptée à votre
         secteur d&apos;activité — à Nice et dans toute la France.
       </p>
     </>

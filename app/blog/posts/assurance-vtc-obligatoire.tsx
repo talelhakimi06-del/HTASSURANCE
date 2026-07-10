@@ -110,7 +110,7 @@ export default function Content() {
       </ul>
       <p>
         HT Assurance est spécialisé dans les assurances pour les professionnels du transport.
-        Nous comparons les offres des principales compagnies couvrant les VTC pour vous
+        <a href="/comparateur" className="text-blue-600 font-semibold underline">Nous comparons les offres</a> des principales compagnies couvrant les VTC pour vous
         trouver le meilleur rapport garanties/prix, à Nice et partout en France.
       </p>
     </>

@@ -121,7 +121,7 @@ export default function Content() {
         <li>Rassembler vos justificatifs : Kbis ou extrait SIRET, diplômes ou justificatifs d&apos;expérience, bilan N-1 ou CA prévisionnel</li>
         <li>Décrire précisément vos activités (types de travaux, matériaux, marchés)</li>
         <li>Faire appel à un courtier qui soumet votre dossier à plusieurs assureurs simultanément</li>
-        <li>Comparer les garanties, les exclusions et les franchises, pas seulement le tarif</li>
+        <li><a href="/comparateur" className="text-blue-600 font-semibold underline">Comparer les garanties, les exclusions et les franchises</a>, pas seulement le tarif</li>
       </ul>
 
       <WarningBox>
@@ -132,7 +132,7 @@ export default function Content() {
 
       <h2>Pourquoi passer par un courtier comme HT Assurance ?</h2>
       <p>
-        HT Assurance est un cabinet de courtage indépendant basé à <strong>Nice</strong>,
+        HT Assurance est un <a href="/courtier-assurance/nice" className="text-blue-600 font-semibold underline">cabinet de courtage indépendant basé à Nice</a>,
         spécialisé dans les assurances professionnelles du bâtiment. Nous connaissons les
         exigences des assureurs spécialisés en étanchéité et savons présenter les dossiers
         de façon à maximiser vos chances d&apos;obtenir une couverture adaptée — même si vous

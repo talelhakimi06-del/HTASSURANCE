@@ -62,12 +62,12 @@ export default function Content() {
       <p>Adressez une lettre recommandee avec AR au service reclamations de votre assureur. Expliquez pourquoi vous contestez, citez les articles du contrat et du Code des assurances. Ce courrier interrompt le delai de prescription.</p>
 
       <h3>Etape 3 : Demander une expertise contradictoire</h3>
-      <p>C&apos;est votre droit fondamental. Designez votre propre expert (CNEI ou compagnie des experts de justice) pour contester les conclusions de l&apos;expert de l&apos;assureur. Cout : 500 a 2 000 euros, mais souvent tres rentable.</p>
+      <p>C&apos;est votre droit fondamental. <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">Designez votre propre expert</a> (CNEI ou compagnie des experts de justice) pour contester les conclusions de l&apos;expert de l&apos;assureur. Cout : 500 a 2 000 euros, mais souvent tres rentable.</p>
 
       <InlineCta text="Nos courtiers analysent gratuitement votre dossier sous 48h et vous disent si le refus est contestable." />
 
       <h3>Etape 4 : Saisir le mediateur</h3>
-      <p>Si le reclamation echoue, saisissez le Mediateur de l&apos;Assurance (gratuit). Envoyez votre dossier a La Mediation de l&apos;Assurance, TSA 50110, 75441 Paris Cedex 09. Avis sous 90 jours, suivi dans 99% des cas.</p>
+      <p>Si le reclamation echoue, saisissez le <a href="/blog/mediateur-assurance-saisine-guide" className="text-blue-600 font-semibold underline">Mediateur de l&apos;Assurance</a> (gratuit). Envoyez votre dossier a La Mediation de l&apos;Assurance, TSA 50110, 75441 Paris Cedex 09. Avis sous 90 jours, suivi dans 99% des cas.</p>
 
       <h3>Etape 5 : Le tribunal judiciaire</h3>
       <p>En dernier recours, vous pouvez saisir le tribunal. Pour les litiges inferieurs a 5 000 euros, le tribunal de proximite suffit (pas d&apos;avocat obligatoire). Au-dela, le tribunal judiciaire avec avocat.</p>

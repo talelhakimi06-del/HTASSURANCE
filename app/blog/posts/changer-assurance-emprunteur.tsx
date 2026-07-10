@@ -70,7 +70,7 @@ export default function Content() {
         Les étapes sont simples :
       </p>
       <ul>
-        <li><strong>Étape 1</strong> : comparez les offres du marché via un courtier
+        <li><strong>Étape 1</strong> : <a href="/comparateur" className="text-blue-600 font-semibold underline">comparez les offres du marché</a> via un courtier
         ou directement. Identifiez un contrat qui offre au minimum les mêmes garanties
         que votre contrat actuel (principe d&apos;équivalence des garanties).</li>
         <li><strong>Étape 2</strong> : souscrivez le nouveau contrat (sous conditions).</li>

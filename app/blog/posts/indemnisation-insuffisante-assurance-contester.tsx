@@ -49,7 +49,7 @@ export default function Content() {
       <p>L assureur vous demande de signer une quittance en echange du paiement. UNE FOIS SIGNEE, ELLE EST DEFINITIVE. Vous ne pourrez plus reclamer la difference. Prenez le temps d evaluer si le montant est juste avant de signer.</p>
 
       <h2>La contre-expertise : votre meilleur atout</h2>
-      <p>Designez votre propre expert pour reevaluer les dommages. L expert d assure connait les techniques des assureurs pour minimiser les montants. Il peut faire augmenter votre indemnisation de 30 a 100% dans de nombreux cas.</p>
+      <p><a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">Designez votre propre expert</a> pour reevaluer les dommages. L expert d assure connait les techniques des assureurs pour minimiser les montants. Il peut faire augmenter votre indemnisation de 30 a 100% dans de nombreux cas.</p>
 
       <WarningBox>Ne signez jamais une quittance d&apos;indemnisation sous pression. Prenez le temps de verifier que le montant est juste.</WarningBox>
 

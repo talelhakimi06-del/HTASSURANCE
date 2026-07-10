@@ -32,7 +32,7 @@ export default function Content() {
       })}} />
 
       <p className="answer-direct text-lg leading-relaxed">
-        En assurance auto, les refus de sinistre sont frequents : contestation de responsabilite, exclusion pour alcool, indemnisation sous-evaluee. Voici tous vos recours pour obtenir une juste indemnisation.
+        En assurance auto, les refus de sinistre sont frequents : contestation de responsabilite, exclusion pour alcool, indemnisation sous-evaluee. Voici <a href="/sinistres" className="text-blue-600 font-semibold underline">tous vos recours</a> pour obtenir une juste indemnisation.
       </p>
 
       <h2>Motifs de refus auto les plus frequents</h2>
@@ -46,7 +46,7 @@ export default function Content() {
       <InlineCta text="Nos courtiers analysent gratuitement votre dossier sous 48h et vous disent si le refus est contestable." />
 
       <h2>Indemnisation trop basse : la contre-expertise</h2>
-      <p>Si la valeur venale proposee est trop basse, rassemblez les annonces de vehicules similaires (meme modele, annee, kilometrage) sur les sites de vente. L argus n est qu une reference, pas une obligation legale. Demandez une contre-expertise.</p>
+      <p>Si la valeur venale proposee est trop basse, rassemblez les annonces de vehicules similaires (meme modele, annee, kilometrage) sur les sites de vente. L argus n est qu une reference, pas une obligation legale. <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">Demandez une contre-expertise</a>.</p>
 
       <h2>Convention IRSA entre assureurs</h2>
       <p>La convention IRSA regit les recours entre assureurs auto. Elle simplifie les procedures mais peut parfois defavoriser l assure. Si vous estimez que le partage de responsabilite est injuste, vous pouvez contester independamment de la convention.</p>

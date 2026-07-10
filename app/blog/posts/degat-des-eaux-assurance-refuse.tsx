@@ -70,8 +70,8 @@ export default function Content() {
       <ol>
         <li><strong>Rassemblez les preuves</strong> : photos datees, factures, constat amiable, rapport de recherche de fuite</li>
         <li><strong>Reclamation ecrite</strong> : LRAR au service reclamations avec references au contrat</li>
-        <li><strong>Expertise contradictoire</strong> : designez votre propre expert si les dommages sont sous-evalues</li>
-        <li><strong>Mediateur</strong> : saisissez le mediateur de l&apos;assurance si le blocage persiste</li>
+        <li><strong>Expertise contradictoire</strong> : <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">designez votre propre expert</a> si les dommages sont sous-evalues</li>
+        <li><strong>Mediateur</strong> : saisissez <a href="/blog/mediateur-assurance-saisine-guide" className="text-blue-600 font-semibold underline">le mediateur de l&apos;assurance</a> si le blocage persiste</li>
       </ol>
 
       <h2>Questions frequentes</h2>

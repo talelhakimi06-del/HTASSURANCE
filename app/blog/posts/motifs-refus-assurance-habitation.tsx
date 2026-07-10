@@ -35,14 +35,14 @@ export default function Content() {
       })}} />
 
       <p className="answer-direct text-lg leading-relaxed">
-        Chaque annee, des milliers d&apos;assures voient leur sinistre habitation refuse. Voici les <strong>10 motifs les plus frequents</strong> et comment les contester efficacement.
+        Chaque annee, des milliers d&apos;assures voient leur sinistre habitation refuse. Voici les <strong>10 motifs les plus frequents</strong> et comment <a href="/sinistres" className="text-blue-600 font-semibold underline">les contester efficacement</a>.
       </p>
 
       <h2>1. Defaut d&apos;entretien</h2>
       <p>Le motif le plus invoque et le plus contestable. L&apos;assureur pretend que vous n&apos;avez pas entretenu votre bien. Mais c&apos;est a lui de prouver le lien entre le defaut et le sinistre. Une canalisation qui cede apres 30 ans, c&apos;est de l&apos;usure, pas un defaut d&apos;entretien.</p>
 
       <h2>2. Vetuste / Usure normale</h2>
-      <p>L&apos;assureur applique un coefficient de vetuste excessif pour reduire ou refuser l&apos;indemnisation. Contestez en demandant le detail du calcul et en comparant avec les baremes habituels du secteur.</p>
+      <p>L&apos;assureur applique un coefficient de vetuste excessif pour <a href="/blog/indemnisation-insuffisante-assurance-contester" className="text-blue-600 font-semibold underline">reduire ou refuser l&apos;indemnisation</a>. Contestez en demandant le detail du calcul et en comparant avec les baremes habituels du secteur.</p>
 
       <h2>3. Exclusion contractuelle</h2>
       <p>Une clause du contrat exclut le type de sinistre. Verifiez que la clause est claire, limitee et qu&apos;elle a ete portee a votre connaissance. Les clauses ambigues s&apos;interpretent en faveur de l&apos;assure (article L133-2 du Code de la consommation).</p>

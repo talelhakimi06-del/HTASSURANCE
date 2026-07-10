@@ -110,8 +110,8 @@ export default function Content() {
       <h2>HT Assurance, votre courtier RC Pro freelance</h2>
       <p>
         Que vous soyez développeur, consultant, graphiste ou formateur, HT Assurance
-        vous aide à trouver la RC Pro adaptée à votre activité. Nous comparons les
-        offres des principaux assureurs et vous délivrons une attestation rapidement —
+        vous aide à trouver la RC Pro adaptée à votre activité. <a href="/comparateur" className="text-blue-600 font-semibold underline">Nous comparons les
+        offres des principaux assureurs</a> et vous délivrons une attestation rapidement —
         en 24 à 48 h pour la plupart des dossiers.
       </p>
       <p>

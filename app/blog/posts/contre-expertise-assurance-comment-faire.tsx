@@ -41,7 +41,7 @@ export default function Content() {
       <TipBox>Consultez un courtier expert avant d&apos;accepter toute proposition d&apos;indemnisation. Notre analyse est gratuite et sans engagement.</TipBox>
 
       <h2>Quand la demander ?</h2>
-      <p>Demandez une contre-expertise quand : l indemnisation proposee est nettement inferieure au cout reel des reparations, l expert a oublie des postes de dommages, ou le taux de vetuste applique est excessif.</p>
+      <p>Demandez une contre-expertise quand : <a href="/blog/indemnisation-insuffisante-assurance-contester" className="text-blue-600 font-semibold underline">l indemnisation proposee est nettement inferieure au cout reel des reparations</a>, l expert a oublie des postes de dommages, ou le taux de vetuste applique est excessif.</p>
 
       <InlineCta text="Nos courtiers analysent gratuitement votre dossier sous 48h et vous disent si le refus est contestable." />
 

@@ -57,7 +57,7 @@ export default function Content() {
         Vous disposez de <strong>5 jours ouvrés</strong> à partir de la découverte du
         sinistre pour le déclarer à votre assurance. Ce délai est inscrit dans votre
         contrat et peut être réduit (vérifiez votre police). En cas de dépassement,
-        votre assureur peut réduire l&apos;indemnisation, voire refuser la prise en charge.
+        votre assureur peut réduire l&apos;indemnisation, voire <a href="/blog/degat-des-eaux-assurance-refuse" className="text-blue-600 font-semibold underline">refuser la prise en charge</a>.
       </p>
 
       <TipBox>
@@ -104,7 +104,7 @@ export default function Content() {
         <li>Demandez plusieurs devis de réparation si votre assureur vous mandate
         une expertise</li>
         <li>Contestez l&apos;estimation de l&apos;expert si elle vous semble insuffisante —
-        vous avez le droit de demander une contre-expertise</li>
+        vous avez le droit de demander une <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">contre-expertise</a></li>
         <li>Vérifiez que votre contrat couvre bien la valeur de remplacement (et non
         la valeur vétustée)</li>
       </ul>

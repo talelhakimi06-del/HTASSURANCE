@@ -32,7 +32,7 @@ export default function Content() {
       })}} />
 
       <p className="answer-direct text-lg leading-relaxed">
-        Le mediateur de l assurance est un recours gratuit et independant pour resoudre les litiges avec votre assureur. Voici comment le saisir efficacement et maximiser vos chances de succes.
+        Le mediateur de l assurance est <a href="/sinistres" className="text-blue-600 font-semibold underline">un recours gratuit et independant</a> pour resoudre les litiges avec votre assureur. Voici comment le saisir efficacement et maximiser vos chances de succes.
       </p>
 
       <h2>Role du mediateur</h2>

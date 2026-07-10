@@ -36,12 +36,12 @@ export default function Content() {
       </p>
 
       <h2>Quand envoyer une mise en demeure ?</h2>
-      <p>Envoyez une mise en demeure quand : l assureur ne repond pas a votre reclamation dans les 2 mois, l indemnisation proposee est manifestement insuffisante, ou l assureur refuse sans motif valable.</p>
+      <p>Envoyez une mise en demeure quand : l assureur ne repond pas a votre reclamation dans les 2 mois, l indemnisation proposee est manifestement insuffisante, ou <a href="/sinistres" className="text-blue-600 font-semibold underline">l assureur refuse sans motif valable</a>.</p>
 
       <TipBox>Consultez un courtier expert avant d&apos;accepter toute proposition d&apos;indemnisation. Notre analyse est gratuite et sans engagement.</TipBox>
 
       <h2>Les elements obligatoires</h2>
-      <p>La mise en demeure doit contenir : vos coordonnees et numero de contrat, le rappel des faits et du sinistre, les references legales (article L114-1 Code des assurances), un delai de reponse (generalement 15 jours), et la mention que vous vous reservez le droit de saisir le mediateur ou le tribunal.</p>
+      <p>La mise en demeure doit contenir : vos coordonnees et numero de contrat, le rappel des faits et du sinistre, les references legales (article L114-1 Code des assurances), un delai de reponse (generalement 15 jours), et la mention que vous vous reservez le droit de <a href="/blog/mediateur-assurance-saisine-guide" className="text-blue-600 font-semibold underline">saisir le mediateur</a> ou le tribunal.</p>
 
       <InlineCta text="Nos courtiers analysent gratuitement votre dossier sous 48h et vous disent si le refus est contestable." />
 

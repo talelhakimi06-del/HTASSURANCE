@@ -32,7 +32,7 @@ export default function Content() {
       })}} />
 
       <p className="answer-direct text-lg leading-relaxed">
-        Les fissures liees a la secheresse (retrait-gonflement des argiles) representent 40% des sinistres CatNat en France. Si votre assurance refuse, voici comment contester et obtenir votre indemnisation.
+        Les fissures liees a la secheresse (retrait-gonflement des argiles) representent 40% des sinistres CatNat en France. Si votre assurance refuse, voici <a href="/sinistres" className="text-blue-600 font-semibold underline">comment contester</a> et obtenir votre indemnisation.
       </p>
 
       <h2>Le mecanisme du retrait-gonflement des argiles (RGA)</h2>
@@ -49,7 +49,7 @@ export default function Content() {
       <p>Les motifs de refus : absence d arrete CatNat pour votre commune, contestation du lien de causalite entre la secheresse et les fissures, vice de construction invoque, ou franchise legale de 1 520 euros jugee suffisante.</p>
 
       <h2>Comment contester</h2>
-      <p>Faites realiser une etude de sol G5 par un geotechnicien pour prouver le lien causal. Obtenez un rapport d expert independant. Verifiez les dates : l arrete CatNat doit couvrir la periode de votre sinistre. Le cout des reparations peut depasser 50 000 euros.</p>
+      <p>Faites realiser une etude de sol G5 par un geotechnicien pour prouver le lien causal. Obtenez un <a href="/blog/contre-expertise-assurance-comment-faire" className="text-blue-600 font-semibold underline">rapport d expert independant</a>. Verifiez les dates : l arrete CatNat doit couvrir la periode de votre sinistre. Le cout des reparations peut depasser 50 000 euros.</p>
 
       <WarningBox>Ne signez jamais une quittance d&apos;indemnisation sous pression. Prenez le temps de verifier que le montant est juste.</WarningBox>
 

@@ -62,7 +62,7 @@ export default function Content() {
         (77 700 € en 2025 pour les prestations de services) rassure peu les assureurs
         qui préfèrent les gros chantiers.</li>
         <li><strong>Justificatifs d&apos;expérience insuffisants</strong> : certains exigent
-        des diplômes, des certifications ou plusieurs années d&apos;expérience salariée.</li>
+        des diplômes, des certifications ou <a href="/blog/assurance-decennale-sans-experience" className="text-blue-600 font-semibold underline">plusieurs années d&apos;expérience salariée</a>.</li>
         <li><strong>Activités jugées à risque</strong> : étanchéité, couverture, électricité
         sont des métiers souvent refusés en auto-entreprise.</li>
       </ul>

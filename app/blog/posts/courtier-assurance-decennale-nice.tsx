@@ -28,9 +28,9 @@ export default function Content() {
         ou les métiers à forte sinistralité.
       </p>
       <p>
-        Passer par un courtier décennale local à Nice vous permet d&apos;accéder à des offres
+        Passer par un <a href="/courtier-assurance/nice" className="text-blue-600 font-semibold underline">courtier décennale local à Nice</a> vous permet d&apos;accéder à des offres
         négociées et à un accompagnement personnalisé, bien au-delà de ce que propose un
-        comparateur en ligne.
+        <a href="/comparateur" className="text-blue-600 font-semibold underline">comparateur en ligne</a>.
       </p>
 
       <h2>Pourquoi ne pas souscrire directement en ligne ?</h2>

@@ -103,7 +103,7 @@ export default function Content() {
       <ul>
         <li>Listez vos besoins réels : kilométrage annuel, usage perso/pro, type de
         missions, plateformes utilisées</li>
-        <li>Obtenez au moins 3 devis auprès d&apos;assureurs spécialisés VTC</li>
+        <li><a href="/comparateur" className="text-blue-600 font-semibold underline">Obtenez au moins 3 devis</a> auprès d&apos;assureurs spécialisés VTC</li>
         <li>Comparez les garanties et exclusions, pas seulement le prix</li>
         <li>Vérifiez les avis sur la gestion des sinistres</li>
         <li>Faites appel à un courtier qui effectue ce travail pour vous</li>

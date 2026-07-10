@@ -97,7 +97,7 @@ export default function Content() {
         Plusieurs stratégies permettent de maîtriser le coût de votre garantie décennale :
       </p>
       <ul>
-        <li><strong>Comparer plusieurs assureurs</strong> : ne pas accepter la première
+        <li><strong><a href="/comparateur" className="text-blue-600 font-semibold underline">Comparer plusieurs assureurs</a></strong> : ne pas accepter la première
         offre. Passer par un courtier permet d&apos;accéder à des assureurs spécialisés
         aux tarifs négociés.</li>
         <li><strong>Valoriser votre expérience</strong> : fournir des justificatifs
@@ -113,7 +113,7 @@ export default function Content() {
       <h2>HT Assurance, votre courtier décennale à Nice</h2>
       <p>
         HT Assurance est spécialisé dans les assurances professionnelles du bâtiment.
-        En tant que courtier indépendant basé à Nice, nous travaillons avec les principaux
+        En tant que <a href="/courtier-assurance/nice" className="text-blue-600 font-semibold underline">courtier indépendant basé à Nice</a>, nous travaillons avec les principaux
         assureurs du marché décennale et accédons à des tarifs préférentiels pour nos clients.
       </p>
       <p>
