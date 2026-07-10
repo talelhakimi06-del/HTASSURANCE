@@ -21,6 +21,9 @@ import * as p17 from "../posts/refus-assurance-emprunteur-que-faire";
 import * as p18 from "../posts/assurance-locataire-obligatoire";
 import * as p19 from "../posts/assurance-pno-definition";
 import * as p20 from "../posts/degat-des-eaux-assurance-que-faire";
+// Habitation (ajouts)
+import * as p21 from "../posts/assurance-residence-secondaire-cote-azur";
+import * as p22 from "../posts/multirisque-habitation-garanties-essentielles";
 // Sinistres
 import * as s1 from "../posts/assurance-refuse-sinistre-que-faire";
 import * as s2 from "../posts/motifs-refus-assurance-habitation";
@@ -58,6 +61,9 @@ const tsxPosts: Post[] = [
   { ...p18.meta, Content: p18.default },
   { ...p19.meta, Content: p19.default },
   { ...p20.meta, Content: p20.default },
+  // Habitation (ajouts)
+  { ...p21.meta, Content: p21.default },
+  { ...p22.meta, Content: p22.default },
   // Sinistres
   { ...s1.meta, Content: s1.default },
   { ...s2.meta, Content: s2.default },
