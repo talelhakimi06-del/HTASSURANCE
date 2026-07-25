@@ -30,6 +30,8 @@
     "recharts": "^3.8.1",
     "remark-gfm": "^4.0.1",
     "resend": "^6.12.3",
+    "server-only": "^0.0.1",
+    "stripe": "^22.3.2",
     "xml2js": "^0.6.2"
   },
   "devDependencies": {

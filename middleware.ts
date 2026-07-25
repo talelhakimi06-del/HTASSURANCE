@@ -8,7 +8,11 @@ import { NextRequest, NextResponse } from "next/server";
 ───────────────────────────────────────────────────────────────────── */
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/seo-stats"],
+  matcher: [
+    "/admin/:path*",
+    "/api/admin/seo-stats",
+    "/api/admin/stripe/:path*",
+  ],
 };
 
 const PROTECTED_PUBLIC_PATHS = ["/admin/login"]; // accessibles sans cookie
